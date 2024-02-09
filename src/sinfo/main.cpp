@@ -157,7 +157,7 @@ int main(int, char**)
 
      // Setup Dear ImGui style
      ImGui::StyleColorsDark();
-     ImGuiStyle& style = ImGui::GetStyle();
+     //ImGuiStyle& style = ImGui::GetStyle();
      //style.ScaleAllSizes(2);
      //ImGui::StyleColorsLight();
 
@@ -220,7 +220,7 @@ int main(int, char**)
 
           // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
           {
-               static float f = 0.0f;
+               //static float f = 0.0f;
                static int counter = 0;
                if (!update_system_info) updateMemoryInfo(&totalMem, &freeMem, &totalSpace, &freeSpace, loadAvg, &loadLine, &cpUsage);
 
