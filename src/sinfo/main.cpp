@@ -142,7 +142,7 @@ int main(int, char**)
           return 1;
 
      // Create window with graphics context
-     GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL2 example", nullptr, nullptr);
+     GLFWwindow* window = glfwCreateWindow(1280, 720, "sinfo", nullptr, nullptr);
      if (window == nullptr)
           return 1;
      glfwMakeContextCurrent(window);
@@ -214,6 +214,7 @@ int main(int, char**)
           ImGui_ImplOpenGL2_NewFrame();
           ImGui_ImplGlfw_NewFrame();
           ImGui::NewFrame();
+          //static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
 
           // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
           if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
@@ -236,7 +237,11 @@ int main(int, char**)
                }
                plotData[plotLineSize - 1] = loadAvg[3];
 
-               ImGui::Begin("wage labor is a form of exploitation");
+               ImGui::Begin("main");
+               ImGui::Indent();
+//               ImGui::CheckboxFlags("ImGuiWindowFlags_NoTitleBar", &flags, ImGuiWindowFlags_NoTitleBar);
+//               ImGui::CheckboxFlags("ImGuiWindowFlags_NoCollapse", &flags, ImGuiWindowFlags_NoCollapse);
+//               ImGui::CheckboxFlags("ImGuiWindowFlags_NoScrollbar", &flags, ImGuiWindowFlags_NoScrollbar);
                ImGui::Text("under construction");
                ImGui::Checkbox("pause", &update_system_info);
                ImGui::Checkbox("Demo Window", &show_demo_window);
@@ -285,6 +290,8 @@ int main(int, char**)
                ImGui::Text("15-minute Load Average: %10.2f", loadAvg[6]);
 
                ImGui::PlotLines("process", plotData, IM_ARRAYSIZE(plotData));
+               ImGui::Unindent();
+
                ImGui::End();
           }
 
