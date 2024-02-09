@@ -133,6 +133,17 @@ void updateMemoryInfo(long long* totalMem, long long* freeMem, long long* totalS
 
 }
 
+void loaData(float (*plotData)[], int arrSize, float newData)
+{
+     for (int i = 0; i < arrSize; i++)
+     {
+          (*plotData)[i - 1] = (*plotData)[i];
+     }
+     (*plotData)[arrSize - 1] = newData;
+}
+
+
+
 //
 // Main code
 int main(int, char**)
@@ -186,7 +197,7 @@ int main(int, char**)
      // Our state
      bool show_demo_window = false;
      bool show_another_window = false;
-     bool update_system_info = false;
+     bool do_not_update_system_info = false;
      ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 
@@ -223,17 +234,21 @@ int main(int, char**)
           {
                //static float f = 0.0f;
                static int counter = 0;
-               if (!update_system_info) updateMemoryInfo(&totalMem, &freeMem, &totalSpace, &freeSpace, loadAvg, &loadLine, &cpUsage);
+               if (!do_not_update_system_info) updateMemoryInfo(&totalMem, &freeMem, &totalSpace, &freeSpace, loadAvg, &loadLine, &cpUsage);
 
                float ram = 100 * float(freeMem) / float(totalMem);
                float rom = 100 * float(freeSpace) / float(totalSpace);
                int proci = int(loadAvg[3]);
                procimax = proci > procimax ? proci : proci * 2;
 
+               
+               // if (!do_not_update_system_info) loaData(&plotData,
+               //                                         plotLineSize,
+               //                                         loadAvg[3]);
+
                for (int i = 0; i < IM_ARRAYSIZE(plotData); i++)
                {
                     plotData[i - 1] = plotData[i];
-                    //plotData[i + 1] = plotData[i];
                }
                plotData[plotLineSize - 1] = loadAvg[3];
 
@@ -243,7 +258,7 @@ int main(int, char**)
 //               ImGui::CheckboxFlags("ImGuiWindowFlags_NoCollapse", &flags, ImGuiWindowFlags_NoCollapse);
 //               ImGui::CheckboxFlags("ImGuiWindowFlags_NoScrollbar", &flags, ImGuiWindowFlags_NoScrollbar);
                ImGui::Text("under construction");
-               ImGui::Checkbox("pause", &update_system_info);
+               ImGui::Checkbox("pause", &do_not_update_system_info);
                ImGui::Checkbox("Demo Window", &show_demo_window);
                ImGui::Checkbox("Another Window", &show_another_window);
                ImGui::ColorEdit3("clear color", (float*)&clear_color);
