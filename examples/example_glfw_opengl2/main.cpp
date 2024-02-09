@@ -45,90 +45,91 @@ static void glfw_error_callback(int error, const char* description)
 
 
 std::vector<std::string> split(const std::string& s, char delimiter) {
-    std::vector<std::string> tokens;
-    std::string token;
-    std::istringstream tokenStream(s);
-    while (std::getline(tokenStream, token, delimiter)) {
-        tokens.push_back(token);
-    }
-    return tokens;
+
+     std::vector<std::string> tokens;
+     std::string token;
+     std::istringstream tokenStream(s);
+     while (std::getline(tokenStream, token, delimiter)) {
+          tokens.push_back(token);
+     }
+     return tokens;
 }
 
 
 double getCPUUsage() {
 
-	std::ifstream statFile("/proc/stat");
-    if (!statFile.is_open()) return -1.0; // Failed to open /proc/stat
+     std::ifstream statFile("/proc/stat");
+     if (!statFile.is_open()) return -1.0; // Failed to open /proc/stat
 
-    std::string line;
-    std::getline(statFile, line);
-    statFile.close();
+     std::string line;
+     std::getline(statFile, line);
+     statFile.close();
 
-    // Split the line into tokens
-    std::vector<std::string> tokens = split(line, ' ');
+     // Split the line into tokens
+     std::vector<std::string> tokens = split(line, ' ');
 
-    // Calculate total CPU time
-    long long totalCPUTime = 0;
+     // Calculate total CPU time
+     long long totalCPUTime = 0;
 
-    for (size_t i = 1; i < tokens.size(); ++i) {
-    	if (!tokens[i].empty())
-    	{
-    		try {
-    			long long value = std::stoll(tokens[i]);
-    			totalCPUTime += value;
-    		} catch (const std::exception& e) {
-    			std::cerr << "Error converting token to long long: " << e.what() << std::endl;
-    			std::cerr << "Token content: " << tokens[i] << std::endl;
-    		}
-    	}
-    }
+     for (size_t i = 1; i < tokens.size(); ++i) {
+          if (!tokens[i].empty())
+          {
+               try {
+                    long long value = std::stoll(tokens[i]);
+                    totalCPUTime += value;
+               } catch (const std::exception& e) {
+                    std::cerr << "Error converting token to long long: " << e.what() << std::endl;
+                    std::cerr << "Token content: " << tokens[i] << std::endl;
+               }
+          }
+     }
 
- /*   for (size_t i = 1; i < tokens.size(); ++i) {
-        totalCPUTime += std::stoll(tokens[i]);
-    }
-*/
+     /*   for (size_t i = 1; i < tokens.size(); ++i) {
+          totalCPUTime += std::stoll(tokens[i]);
+          }
+     */
 
-    // Calculate idle CPU time
-    long long idleCPUTime = std::stoll(tokens[4]);
+     // Calculate idle CPU time
+     long long idleCPUTime = std::stoll(tokens[4]);
 
-    // Calculate CPU usage
-    double cpuUsage = 100.0 * (1.0 - static_cast<double>(idleCPUTime) / totalCPUTime);
+     // Calculate CPU usage
+     double cpuUsage = 100.0 * (1.0 - static_cast<double>(idleCPUTime) / totalCPUTime);
 
-    return cpuUsage;
+     return cpuUsage;
 }
 
 
 
 void updateMemoryInfo(long long* totalMem, long long* freeMem, long long* totalSpace, long long* freeSpace,
-		double* loadAvg, std::string* loadLine, double* cpUsage)
+                      double* loadAvg, std::string* loadLine, double* cpUsage)
 {
 //	*cpUsage =
-	getCPUUsage();
+     getCPUUsage();
 
-	struct sysinfo memInfo;
-    sysinfo(&memInfo);
-    *totalMem = memInfo.totalram * memInfo.mem_unit;
-    *freeMem = memInfo.freeram * memInfo.mem_unit;
+     struct sysinfo memInfo;
+     sysinfo(&memInfo);
+     *totalMem = memInfo.totalram * memInfo.mem_unit;
+     *freeMem = memInfo.freeram * memInfo.mem_unit;
 
-	struct statvfs vfs;
-	if (statvfs("/", &vfs) != 0)
-	{// failed to get filesystem statistics
-		*totalSpace = 100;
-	    *freeSpace = 1;
+     struct statvfs vfs;
+     if (statvfs("/", &vfs) != 0)
+     {// failed to get filesystem statistics
+          *totalSpace = 100;
+          *freeSpace = 1;
 
-	} else
-	{
-		*totalSpace = vfs.f_blocks * vfs.f_frsize;
-	    *freeSpace = vfs.f_bfree * vfs.f_frsize;
-	}
+     } else
+     {
+          *totalSpace = vfs.f_blocks * vfs.f_frsize;
+          *freeSpace = vfs.f_bfree * vfs.f_frsize;
+     }
 
 
-	std::ifstream loadFile("/proc/loadavg");
-	if (!loadFile.is_open()) return;
-	        //std::cerr << "Error: Failed to open /proc/loadavg.\n";
-	std::getline(loadFile, *loadLine);
-	std::istringstream iss(*loadLine);
-	for (int i = 0; i < 7; ++i) iss >> loadAvg[i];
+     std::ifstream loadFile("/proc/loadavg");
+     if (!loadFile.is_open()) return;
+     //std::cerr << "Error: Failed to open /proc/loadavg.\n";
+     std::getline(loadFile, *loadLine);
+     std::istringstream iss(*loadLine);
+     for (int i = 0; i < 7; ++i) iss >> loadAvg[i];
 
 }
 
@@ -230,10 +231,10 @@ int main(int, char**)
 
                for (int i = 0; i < IM_ARRAYSIZE(plotData); i++)
                {
-            	   plotData[i - 1] = plotData[i];
-            	   //plotData[i + 1] = plotData[i];
+                    plotData[i - 1] = plotData[i];
+                    //plotData[i + 1] = plotData[i];
                }
-        	   plotData[plotLineSize - 1] = loadAvg[3];
+               plotData[plotLineSize - 1] = loadAvg[3];
 
                ImGui::Begin("wage labor is a form of exploitation");
                ImGui::Text("under construction");
