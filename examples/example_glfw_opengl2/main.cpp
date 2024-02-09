@@ -15,7 +15,18 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl2.h"
 #include <stdio.h>
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include <sys/sysinfo.h>
+#include <sys/statvfs.h>
+
 #ifdef __APPLE__
+//#include <sys/sysinfo.h>
 #define GL_SILENCE_DEPRECATION
 #endif
 #include <GLFW/glfw3.h>
@@ -32,6 +43,96 @@ static void glfw_error_callback(int error, const char* description)
      fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
+
+std::vector<std::string> split(const std::string& s, char delimiter) {
+    std::vector<std::string> tokens;
+    std::string token;
+    std::istringstream tokenStream(s);
+    while (std::getline(tokenStream, token, delimiter)) {
+        tokens.push_back(token);
+    }
+    return tokens;
+}
+
+
+double getCPUUsage() {
+
+	std::ifstream statFile("/proc/stat");
+    if (!statFile.is_open()) return -1.0; // Failed to open /proc/stat
+
+    std::string line;
+    std::getline(statFile, line);
+    statFile.close();
+
+    // Split the line into tokens
+    std::vector<std::string> tokens = split(line, ' ');
+
+    // Calculate total CPU time
+    long long totalCPUTime = 0;
+
+    for (size_t i = 1; i < tokens.size(); ++i) {
+    	if (!tokens[i].empty())
+    	{
+    		try {
+    			long long value = std::stoll(tokens[i]);
+    			totalCPUTime += value;
+    		} catch (const std::exception& e) {
+    			std::cerr << "Error converting token to long long: " << e.what() << std::endl;
+    			std::cerr << "Token content: " << tokens[i] << std::endl;
+    		}
+    	}
+    }
+
+ /*   for (size_t i = 1; i < tokens.size(); ++i) {
+        totalCPUTime += std::stoll(tokens[i]);
+    }
+*/
+
+    // Calculate idle CPU time
+    long long idleCPUTime = std::stoll(tokens[4]);
+
+    // Calculate CPU usage
+    double cpuUsage = 100.0 * (1.0 - static_cast<double>(idleCPUTime) / totalCPUTime);
+
+    return cpuUsage;
+}
+
+
+
+void updateMemoryInfo(long long* totalMem, long long* freeMem, long long* totalSpace, long long* freeSpace,
+		double* loadAvg, std::string* loadLine, double* cpUsage)
+{
+//	*cpUsage =
+	getCPUUsage();
+
+	struct sysinfo memInfo;
+    sysinfo(&memInfo);
+    *totalMem = memInfo.totalram * memInfo.mem_unit;
+    *freeMem = memInfo.freeram * memInfo.mem_unit;
+
+	struct statvfs vfs;
+	if (statvfs("/", &vfs) != 0)
+	{// failed to get filesystem statistics
+		*totalSpace = 100;
+	    *freeSpace = 1;
+
+	} else
+	{
+		*totalSpace = vfs.f_blocks * vfs.f_frsize;
+	    *freeSpace = vfs.f_bfree * vfs.f_frsize;
+	}
+
+
+	std::ifstream loadFile("/proc/loadavg");
+	if (!loadFile.is_open()) return;
+	        //std::cerr << "Error: Failed to open /proc/loadavg.\n";
+	std::getline(loadFile, *loadLine);
+	std::istringstream iss(*loadLine);
+	for (int i = 0; i < 7; ++i) iss >> loadAvg[i];
+
+}
+
+//
 // Main code
 int main(int, char**)
 {
@@ -55,7 +156,11 @@ int main(int, char**)
 
      // Setup Dear ImGui style
      ImGui::StyleColorsDark();
+     ImGuiStyle& style = ImGui::GetStyle();
+     //style.ScaleAllSizes(2);
      //ImGui::StyleColorsLight();
+
+
 
      // Setup Platform/Renderer backends
      ImGui_ImplGlfw_InitForOpenGL(window, true);
@@ -80,7 +185,19 @@ int main(int, char**)
      // Our state
      bool show_demo_window = false;
      bool show_another_window = false;
+     bool update_system_info = false;
      ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+
+
+     long long totalMem, freeMem, totalSpace, freeSpace;
+     double loadAvg[7] = {0.0};
+     double cpUsage;
+     std::string loadLine;
+     int procimax = 0;
+     int plotLineSize = 333;
+     float plotData[plotLineSize];
+
 
      // Main loop
      while (!glfwWindowShouldClose(window))
@@ -104,12 +221,25 @@ int main(int, char**)
           {
                static float f = 0.0f;
                static int counter = 0;
+               if (!update_system_info) updateMemoryInfo(&totalMem, &freeMem, &totalSpace, &freeSpace, loadAvg, &loadLine, &cpUsage);
+
+               float ram = 100 * float(freeMem) / float(totalMem);
+               float rom = 100 * float(freeSpace) / float(totalSpace);
+               int proci = int(loadAvg[3]);
+               procimax = proci > procimax ? proci : proci * 2;
+
+               for (int i = 0; i < IM_ARRAYSIZE(plotData); i++)
+               {
+            	   plotData[i - 1] = plotData[i];
+            	   //plotData[i + 1] = plotData[i];
+               }
+        	   plotData[plotLineSize - 1] = loadAvg[3];
 
                ImGui::Begin("wage labor is a form of exploitation");
                ImGui::Text("under construction");
+               ImGui::Checkbox("pause", &update_system_info);
                ImGui::Checkbox("Demo Window", &show_demo_window);
                ImGui::Checkbox("Another Window", &show_another_window);
-               ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
                ImGui::ColorEdit3("clear color", (float*)&clear_color);
 
 /* buttons return true when clicked like most widgets when edited or activated */
@@ -132,6 +262,28 @@ int main(int, char**)
                ImGui::SameLine();
                ImGui::Text("my counter is %d", counter);
                ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+
+               ImGui::SliderFloat("RAM", &ram, 0.0f, 100.0f);
+               ImGui::SameLine();
+               ImGui::Text("%d/%d Mo", int(freeMem / 1024 / 1024), int(totalMem / 1024 / 1024));
+
+               ImGui::SliderFloat("ROM", &rom, 0.0f, 100.0f);
+               ImGui::SameLine();
+               ImGui::Text("%d/%d Go", int(freeSpace / 1024 / 1024 / 1024), int(totalSpace / 1024 / 1024 /1024));
+
+               ImGui::SliderInt("process", &proci, 0, procimax);
+
+               ImGui::Text("%s", loadLine.c_str());
+               ImGui::Text("%f", cpUsage);
+               ImGui::Text("01-minute Load Average: %10.2f", loadAvg[0]);
+               ImGui::Text("05-minute Load Average: %10.2f", loadAvg[1]);
+               ImGui::Text("15-minute Load Average: %10.2f", loadAvg[2]);
+               ImGui::Text("05-minute Load Average: %10.2f", loadAvg[3]);
+               ImGui::Text("15-minute Load Average: %10.2f", loadAvg[4]);
+               ImGui::Text("15-minute Load Average: %10.2f", loadAvg[5]);
+               ImGui::Text("15-minute Load Average: %10.2f", loadAvg[6]);
+
+               ImGui::PlotLines("process", plotData, IM_ARRAYSIZE(plotData));
                ImGui::End();
           }
 
