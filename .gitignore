@@ -12,6 +12,10 @@ examples/*/Debug/*
 examples/*/Release/*
 examples/*/x64/*
 
+## eclipse artifacts
+.*project
+.settings/
+
 ## Visual Studio artifacts
 .vs
 ipch
