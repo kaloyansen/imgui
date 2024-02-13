@@ -1,16 +1,3 @@
-// Dear ImGui: standalone example application for GLFW + OpenGL2, using legacy fixed pipeline
-// (GLFW is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan/Metal graphics context creation, etc.)
-
-// Learn about Dear ImGui:
-// - FAQ                  https://dearimgui.com/faq
-// - Getting Started      https://dearimgui.com/getting-started
-// - Documentation        https://dearimgui.com/docs (same as your local docs/ folder).
-// - Introduction, links and more at the top of imgui.cpp
-
-// **DO NOT USE THIS CODE IF YOUR CODE/ENGINE IS USING MODERN OPENGL (SHADERS, VBO, VAO, etc.)**
-// **Prefer using the code in the example_glfw_opengl2/ folder**
-// See imgui_impl_glfw.cpp for details.
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl2.h"
@@ -36,10 +23,6 @@
 #endif
 #include <GLFW/glfw3.h>
 
-
-// [Win32] Our example includes a copy of glfw3.lib pre-compiled with VS2010 to maximize ease of testing and compatibility with old VS compilers.
-// To link with VS2010-era libraries, VS2015+ requires linking with legacy_stdio_definitions.lib, which we do using this pragma.
-// Your own project should not be affected, as you are likely to link with a newer binary of GLFW that is adequate for your version of Visual Studio.
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
@@ -53,56 +36,6 @@
 
 int screen_width;
 int screen_height;
-//std::vector<std::vector<float>*>* buffer2d = new std::vector<std::vector<float>*>;
-
-
-// class K3Buffer {
-// private:
-//      std::map<const char*, std::vector<float>*> buffer;
-
-// public:
-
-//      void append(const char* name)
-//           {
-//                std::vector<float>* fector = new std::vector<float>;
-//                buffer[name] = fector;
-//           }
-
-// //      void append(const char* name, std::vector<float>* float_vector)
-// //           {
-// // //               buffer.push_back(float_vector);
-// //                buffer[name] = float_vector;
-// //           }
-
-
-//      std::vector<float>* get(const char* name)
-//           {
-//                auto it = buffer.find(name);
-//                if (it != buffer.end()) return it->second;
-//                else return nullptr;
-//           }
-
-
-//      // std::vector<float>* getidx(size_t index)
-//      //      {
-//      //           if (index < buffer.size()) return buffer[index];
-//      //           else return nullptr;
-//      //      }
-
-//      void deleteVector(const char* name) {
-//           auto it = buffer.find(name);
-//           if (it != buffer.end()) {
-//                delete it->second;
-//                buffer.erase(it);
-//           } 
-//      }
-
-//      ~K3Buffer()
-//           {
-//                for (auto& pair : buffer) delete pair.second;
-//           }
-// };
-
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -358,37 +291,7 @@ int main(int, char**)
      int procimax = 0;
 
      K3Buffer* K3B = new K3Buffer(BUFSIZE);
-
-     K3B->append("loadavg0");
-     K3B->append("loadavg1");
-     K3B->append("loadavg2");
-     K3B->append("loadavg3");
-     K3B->append("cpufreq");
-     K3B->append("appfreq");
-     K3B->append("upfreq");
-     K3B->append("freemem");
-     K3B->append("freespace");
-
-
-     // std::vector<float>* loadavg0vec = new std::vector<float>;
-     // std::vector<float>* loadavg1vec = new std::vector<float>;
-     // std::vector<float>* loadavg2vec = new std::vector<float>;
-     // std::vector<float>* loadavg3vec = new std::vector<float>;
-     // std::vector<float>* cpufreqvec = new std::vector<float>;
-     // std::vector<float>* appfreqvec = new std::vector<float>;
-     // std::vector<float>* upfreqvec = new std::vector<float>;
-     // std::vector<float>* freememvec = new std::vector<float>;
-     // std::vector<float>* freespacevec = new std::vector<float>;
-
-     // buffer2d->push_back(loadavg0vec);
-     // buffer2d->push_back(loadavg1vec);
-     // buffer2d->push_back(loadavg2vec);
-     // buffer2d->push_back(loadavg3vec);
-     // buffer2d->push_back(cpufreqvec);
-     // buffer2d->push_back(appfreqvec);
-     // buffer2d->push_back(upfreqvec);
-     // buffer2d->push_back(freememvec);
-     // buffer2d->push_back(freespacevec);
+     K3B->append("loadavg0", "loadavg1", "loadavg2", "loadavg3", "cpufreq", "appfreq", "upfreq", "freemem", "freespace", nullptr);
 
      int loop = 0;
      int uloop = 0;
@@ -404,11 +307,7 @@ int main(int, char**)
      while (!glfwWindowShouldClose(window))
      {
           loop++;
-          // Poll and handle events (inputs, window resize, etc.)
-          // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-          // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application, or clear/overwrite your copy of the mouse data.
-          // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application, or clear/overwrite your copy of the keyboard data.
-          // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+
           glfwPollEvents();
 
           // Start the Dear ImGui frame
@@ -714,9 +613,12 @@ ImGui::SliderInt("processed", &proci, 0, procimax);
                if (ImGui::Begin("quit", &show_quit, controlWindowFlags))
                {
                     ImGui::Text("sinfo v%3.1f", VERSION);
-                    ImGui::Text("quit ?");
-                    if (ImGui::Button("[q]uit") || ImGui::IsKeyPressed(ImGuiKey_Q))
+                    ImGui::Text("really quit ?");
+                    if (ImGui::Button("[y]es") || ImGui::IsKeyPressed(ImGuiKey_Y))
+                    {
+                         delete K3B;
                          glfwSetWindowShouldClose(window, 1);
+                    }
 
                     ImGui::SameLine();
                     if (ImGui::Button("[c]ancel") || ImGui::IsKeyPressed(ImGuiKey_C))
@@ -754,10 +656,6 @@ ImGui::SliderInt("processed", &proci, 0, procimax);
 
      glfwDestroyWindow(window);
      glfwTerminate();
-
-//     for (const auto& buffer : *buffer2d) delete buffer;
-//     delete buffer2d;
-     delete K3B;
 
      return 0;
 }

@@ -4,11 +4,14 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <cstdarg>
 
 class K3Buffer {
 private:
      size_t buffer_size_max;
      std::map<const char*, std::vector<float>*> buffer;
+
+     void appends(const char*);
 
 public:
      K3Buffer(size_t);
@@ -19,7 +22,7 @@ public:
 
      void reset();
      void dump();
-     void append(const char*);
+     void append(const char*, ...);
      void remove(const char*);
      void fill(const char*, float);
 

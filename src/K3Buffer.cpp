@@ -10,10 +10,22 @@ void K3Buffer::info(float value, const char* description = "")
      fprintf(stdout, "K3Buffer %f %s\n", value, description);
 }
 
-void K3Buffer::append(const char* name)
+void K3Buffer::append(const char* arg, ...)
+{
+     va_list arglist;
+     const char* nextarg;
+
+     va_start(arglist, arg);
+     this->appends(arg);
+     while ((nextarg = va_arg(arglist, const char*)) != nullptr) this->appends(nextarg);
+     va_end(arglist);
+}
+
+void K3Buffer::appends(const char* name)
 {
      std::vector<float>* fector = new std::vector<float>;
      this->buffer[name] = fector;
+     this->info(1, name);
 }
 
 void K3Buffer::remove(const char* name)
@@ -22,7 +34,8 @@ void K3Buffer::remove(const char* name)
      if (it != this->buffer.end()) {
           delete it->second;
           this->buffer.erase(it);
-     } 
+     }
+     this->info(0, name);
 }
 
 std::vector<float>* K3Buffer::get(const char* name)
@@ -53,7 +66,7 @@ void K3Buffer::dump()
 {
      for (auto& pair : this->buffer)
      {
-          this->info(6, pair.first);
+          this->info(3, pair.first);
           this->dump(pair.second);
      }
 }
@@ -65,5 +78,9 @@ void K3Buffer::reset()
 
 K3Buffer::~K3Buffer()
 {
-     for (auto& pair : this->buffer) delete pair.second;
+     for (auto& pair : this->buffer)
+     {
+          this->info(0, pair.first);
+          delete pair.second;
+     }
 }

@@ -3,8 +3,10 @@
 # Compatible with MSYS2/MINGW, Ubuntu 14.04.1 and Mac OS X
 #
 # You will need GLFW (http://www.glfw.org):
-# Linux:
+# debian linux:
 #   apt-get install libglfw-dev
+# manjaro linux:
+#   pamac install glfw-x11
 # Mac OS X:
 #   brew install glfw
 # MSYS2:
@@ -15,7 +17,7 @@
 #CXX = clang++
 
 EXE = sinfo
-IMGUI_DIR = ../..
+IMGUI_DIR = ..
 SOURCES = main.cpp
 SOURCES += K3Buffer.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
@@ -23,7 +25,7 @@ SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
 
-CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(IMGUI_DIR)/sinfo/include
+CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(IMGUI_DIR)/include
 CXXFLAGS += -g -Wall -Wformat
 LIBS =
 
