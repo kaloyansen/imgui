@@ -2,17 +2,16 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl2.h"
 #include "K3Buffer.h"
+#include "K3Proc.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <iostream>
+//#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <map>
-#include <algorithm>
 
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
@@ -39,17 +38,7 @@ int screen_height;
 
 static void glfw_error_callback(int error, const char* description)
 {
-     fprintf(stderr, "sinfo(debug) %d %s\n", error, description);
-}
-
-static void error(float value, const char* description = "")
-{
-     fprintf(stderr, "sinfo(error) %f %s\n", value, description);
-}
-
-static void info(float value, const char* description = "")
-{
-     fprintf(stdout, "sinfo(info) %f %s\n", value, description);
+     fprintf(stderr, "glfw %d %s\n", error, description);
 }
 
 std::vector<std::string> split(const std::string& s, char delimiter) {
@@ -115,7 +104,7 @@ double getCPUUsage() {
           }
           catch (const std::exception& e)
           {
-               error(1, "error converting token to long long: ");
+               glfw_error_callback(1, "error converting token to long long: ");
           }
      }
 
@@ -201,7 +190,10 @@ void plotBuffer(std::vector<float>* buffer, const char* title = "",
      float* pmin = &min;
      float* pmax = &max;
 
-     processBuffer(buffer, pmin, pmax);
+     //processBuffer(buffer, pmin, pmax);
+     K3Buffer delme(0);
+     delme.process(buffer, pmin, pmax);
+
      sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min, last, max, unit);
 
      ImGui::PlotLines("", buffer->data(), size, 0, overlay, min, max, ImVec2(screen_width, screen_height / 7));
@@ -230,8 +222,7 @@ int main(int, char**)
      if (!glfwInit())
           return 1;
 
-     info(-1, "\n");
-     info(0, "let's go");
+     glfw_error_callback(-1, "this is not an error\n");
 
      // Create window with graphics context
      GLFWwindow* window = glfwCreateWindow(XVIEW, YVIEW, "sinfo", nullptr, nullptr);
@@ -293,6 +284,10 @@ int main(int, char**)
      K3Buffer* K3B = new K3Buffer(BUFSIZE);
      K3B->append("loadavg0", "loadavg1", "loadavg2", "loadavg3", "cpufreq", "appfreq", "upfreq", "freemem", "freespace", nullptr);
 
+     K3Proc* Proc = new K3Proc();
+     delete Proc;
+     
+
      int loop = 0;
      int uloop = 0;
      int delay = 1;
@@ -323,6 +318,7 @@ int main(int, char**)
 
           // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
           {
+               delay = delay > 0 ? delay : 1;
                do_not_update_system_info = loop % delay ? true : false;
                if (!do_not_update_system_info)
                {
@@ -358,7 +354,15 @@ int main(int, char**)
                     K3B->fill("loadavg3", loadavgarr[3]);
                }
 
-               // for (int i = 0; i < IM_ARRAYSIZE(plotData); i++)
+               if (ImGui::IsKeyPressed(ImGuiKey_D)) K3B->dump();
+               if (ImGui::IsKeyPressed(ImGuiKey_R))
+               {
+                    K3B->reset();
+                    uloop = 0;
+                    delay = 1;
+               }
+
+// for (int i = 0; i < IM_ARRAYSIZE(plotData); i++)
                // {
                //      plotData[i - 1] = plotData[i];
                // }
@@ -555,16 +559,16 @@ ImGui::SliderInt("processed", &proci, 0, procimax);
                     ImGui::SameLine();
                     if (ImGui::Button("[c]lose") || ImGui::IsKeyPressed(ImGuiKey_C))
                          show_control = false;
-                    ImGui::SameLine();
-                    if (ImGui::Button("[d]ump") || ImGui::IsKeyPressed(ImGuiKey_D))
-                         K3B->dump();
-                    ImGui::SameLine();
-                    if (ImGui::Button("[r]eset") || ImGui::IsKeyPressed(ImGuiKey_R))
-                    {
-                         K3B->reset();
-                         uloop = 0;
-                         delay = 1;
-                    }
+                    // ImGui::SameLine();
+                    // if (ImGui::Button("[d]ump") || ImGui::IsKeyPressed(ImGuiKey_D))
+                    //      K3B->dump();
+                    // ImGui::SameLine();
+                    // if (ImGui::Button("[r]eset") || ImGui::IsKeyPressed(ImGuiKey_R))
+                    // {
+                    //      K3B->reset();
+                    //      uloop = 0;
+                    //      delay = 1;
+                    // }
                     ImGui::SeparatorText("");
                     
                     char bufoverlay[33];

@@ -38,6 +38,7 @@ void K3Buffer::remove(const char* name)
      this->info(0, name);
 }
 
+
 std::vector<float>* K3Buffer::get(const char* name)
 {
      auto it = this->buffer.find(name);
@@ -52,9 +53,18 @@ void K3Buffer::fill(const char*name, float value)
      if (fector->size() > this->buffer_size_max) fector->erase(fector->begin());
 }
 
+void K3Buffer::process(std::vector<float>* fector, float* min, float* max)
+{
+     auto amin = min_element(fector->begin(), fector->end());
+     auto amax = max_element(fector->begin(), fector->end());
+     *min = float(*amin);
+     *max = float(*amax);
+}
+
 void K3Buffer::reset(std::vector<float>* fector)
 {
-     fector->assign(fector->size(), 0.0f);
+     if (fector != nullptr) fector->clear();
+     //fector->assign(fector->size(), 0.0f);
 }
 
 void K3Buffer::dump(std::vector<float>* fector)

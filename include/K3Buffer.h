@@ -1,10 +1,10 @@
 #ifndef K3BUFFER_H
 #define K3BUFFER_H
-
 #include <iostream>
 #include <vector>
 #include <map>
 #include <cstdarg>
+#include <algorithm>
 
 class K3Buffer {
 private:
@@ -12,6 +12,8 @@ private:
      std::map<const char*, std::vector<float>*> buffer;
 
      void appends(const char*);
+     void reset(std::vector<float>*);
+     void dump(std::vector<float>*);
 
 public:
      K3Buffer(size_t);
@@ -25,9 +27,7 @@ public:
      void append(const char*, ...);
      void remove(const char*);
      void fill(const char*, float);
-
-     void reset(std::vector<float>*);
-     void dump(std::vector<float>*);
+     void process(std::vector<float>*, float*, float*);
 };
 
 #endif
