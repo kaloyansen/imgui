@@ -26,11 +26,10 @@
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
 
-
 #define XVIEW 999
 #define YVIEW 666
 #define BUFSIZE 600
-#define DEBUG false
+#define DEBUG true
 #define VERSION 0.2
 
 int screen_width;
@@ -53,32 +52,6 @@ std::vector<std::string> split(const std::string& s, char delimiter) {
      return tokens;
 }
 
-
-int getDirectiveValue(const char* path, const char* directive)
-{
-     FILE* file = fopen(path, "r");
-     if (file == NULL) return -1;
-
-     char line[256];
-     double valeur = -1.0;
-
-     while (fgets(line, sizeof(line), file) != NULL) {
-          if (strstr(line, directive)) {
-               char* token = strtok(line, ":");
-               if (token != NULL) {
-                    token = strtok(NULL, ":");
-                    if (token != NULL) {
-                         valeur = atof(token);
-                         break;
-                    }
-               }
-          }
-     }
-
-     fclose(file);
-
-     return valeur;
-}
 
 double getCPUUsage() {
 
@@ -140,7 +113,7 @@ void updateSystemInfo(long long* totalMem, long long* freeMem,
                       double* loadavgarr, float* cpufreq,
                       std::string* procloadavg, std::string* procstat)
 {
-     *cpufreq = getDirectiveValue("/proc/cpuinfo", "cpu MHz");//getCPUUsage();
+//     *cpufreq = getDirectiveValue("/proc/cpuinfo", "cpu MHz");//getCPUUsage();
 
      struct sysinfo memInfo;
      sysinfo(&memInfo);
@@ -173,14 +146,6 @@ void updateSystemInfo(long long* totalMem, long long* freeMem,
 
 }
 
-void processBuffer(std::vector<float>* buffer, float* min, float* max)
-{
-     auto amin = min_element(buffer->begin(), buffer->end());
-     auto amax = max_element(buffer->begin(), buffer->end());
-     *min = float(*amin);
-     *max = float(*amax);
-}
-
 void plotBuffer(std::vector<float>* buffer, const char* title = "",
                 const char* unit = "", int size = BUFSIZE)
 {
@@ -190,7 +155,6 @@ void plotBuffer(std::vector<float>* buffer, const char* title = "",
      float* pmin = &min;
      float* pmax = &max;
 
-     //processBuffer(buffer, pmin, pmax);
      K3Buffer delme(0);
      delme.process(buffer, pmin, pmax);
 
@@ -244,29 +208,10 @@ int main(int, char**)
      //style.ScaleAllSizes(2);
      //ImGui::StyleColorsLight();
 
-
-
      // Setup Platform/Renderer backends
      ImGui_ImplGlfw_InitForOpenGL(window, true);
      ImGui_ImplOpenGL2_Init();
 
-     // Load Fonts
-     // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-     // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-     // - If the file cannot be loaded, the function will return a nullptr. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-     // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-     // - Use '#define IMGUI_ENABLE_FREETYPE' in your imconfig file to use Freetype for higher quality font rendering.
-     // - Read 'docs/FONTS.md' for more instructions and details.
-     // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-     //io.Fonts->AddFontDefault();
-     //io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\segoeui.ttf", 18.0f);
-     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-     //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-     //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, nullptr, io.Fonts->GetGlyphRangesJapanese());
-     //IM_ASSERT(font != nullptr);
-
-     // Our state
      bool show_demo_window = false;
      bool show_control = false;
      bool show_about = false;
@@ -274,18 +219,15 @@ int main(int, char**)
      bool do_not_update_system_info = false;
      ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-     long long totalMem, freeMem, totalSpace, freeSpace;
-     double loadavgarr[7] = {0.0};
-     float cpufreq;
-     std::string procloadavg;
-     std::string procstat;
      int procimax = 0;
+     int proci;
 
      K3Buffer* K3B = new K3Buffer(BUFSIZE);
      K3B->append("loadavg0", "loadavg1", "loadavg2", "loadavg3", "cpufreq", "appfreq", "upfreq", "freemem", "freespace", nullptr);
 
      K3Proc* Proc = new K3Proc();
-     delete Proc;
+     Proc->append("loadavg0", "loadavg1", "loadavg2", "loadavg3", "cpufreq", "appfreq", "upfreq", "totalmem", "freemem", "freespace", "totalspace", "procstat", "procloadavg", nullptr);
+
      
 
      int loop = 0;
@@ -323,35 +265,41 @@ int main(int, char**)
                if (!do_not_update_system_info)
                {
                     uloop++;
-                    updateSystemInfo(&totalMem, &freeMem, &totalSpace, &freeSpace, loadavgarr, &cpufreq,  &procloadavg,  &procstat);
-               }
+                    //updateSystemInfo(&totalMem, &freeMem, &totalSpace, &freeSpace, loadavgarr, &cpufreq,  &procloadavg,  &procstat);
+                    Proc->connect("cpufreq", "/proc/cpuinfo", "cpu MHz");
+                    Proc->memory("totalmem", "freemem");
+                    Proc->storage("totalspace", "freespace");
+                    Proc->connect("procstat", "/proc/stat");
+                    Proc->connect("procloadavg", "/proc/loadavg");
+//               }
 
-               if (uloop < BUFSIZE) status = "load";
-               else if (uloop == BUFSIZE) status = "done";
-               else status = "run";
+                    if (uloop < BUFSIZE) status = "load";
+                    else if (uloop == BUFSIZE) status = "done";
+                    else status = "run";
 
-               if (strcmp("done", status) == 0) delay = 6;
+                    if (strcmp("done", status) == 0) delay = 6;
 //               if (status == "done") delay = 6;
-               float appfreq = 1.0f / io.DeltaTime;
-               float upfreq = appfreq / delay;
-               buftime = float(BUFSIZE) / upfreq;
-                              
-               float ram = 100 * float(freeMem) / float(totalMem);
-               float rom = 100 * float(freeSpace) / float(totalSpace);
-               int proci = int(loadavgarr[3]);
-               procimax = proci > procimax ? proci : proci * 2;
+                    float appfreq = 1.0f / io.DeltaTime;
+                    float upfreq = appfreq / delay;
 
-               if (!do_not_update_system_info)
-               {
-                    K3B->fill("cpufreq", cpufreq);
-                    K3B->fill("freespace", rom);
-                    K3B->fill("freemem", ram);
+                    buftime = float(BUFSIZE) / upfreq;
+                              
+                    proci = Proc->get("procloadavg")->valeur[3];
+                    procimax = proci > procimax ? proci : proci * 2;
+
+//               if (!do_not_update_system_info)
+//               {
+                    K3B->fill("cpufreq", Proc->get("cpufreq")->valeur.back());
+                    K3B->fill("freespace", 100 * Proc->get("freespace")->valeur.back() / Proc->get("totalspace")->valeur.back());
+                    K3B->fill("freemem", 100 * Proc->get("freemem")->valeur.back() / Proc->get("totalmem")->valeur.back());
+                    //K3B->fill("freespace", rom);
+                    //K3B->fill("freemem", ram);
                     K3B->fill("upfreq", upfreq);
                     K3B->fill("appfreq", appfreq);
-                    K3B->fill("loadavg0", loadavgarr[0]);
-                    K3B->fill("loadavg1", loadavgarr[1]);
-                    K3B->fill("loadavg2", loadavgarr[2]);
-                    K3B->fill("loadavg3", loadavgarr[3]);
+                    K3B->fill("loadavg0", Proc->get("procloadavg")->valeur[0]);
+                    K3B->fill("loadavg1", Proc->get("procloadavg")->valeur[1]);
+                    K3B->fill("loadavg2", Proc->get("procloadavg")->valeur[2]);
+                    K3B->fill("loadavg3", Proc->get("procloadavg")->valeur[3]);
                }
 
                if (ImGui::IsKeyPressed(ImGuiKey_D)) K3B->dump();
@@ -435,7 +383,7 @@ int main(int, char**)
                     ImGui::Text("%d/%d", loop, loop / 60);
                     ImGui::TableNextColumn();
                     if (ImGui::IsKeyPressed(ImGuiKey_Q) || ImGui::Button("[q]uit"))
-                         show_quit = true;
+                         show_about = true;
 //                         glfwSetWindowShouldClose(window, 1);
                     ImGui::EndTable();
                }
@@ -537,8 +485,10 @@ ImGui::SliderInt("processed", &proci, 0, procimax);
                if (DEBUG)
                {
                     ImGui::SeparatorText("debug");
-                    ImGui::Text("loadavg: %s", procloadavg.c_str());
-                    ImGui::Text("stat: %s", procstat.c_str());
+                    // ImGui::Text("loadavg: %s", procloadavg.c_str());
+                    // ImGui::Text("stat: %s", procstat.c_str());
+                    ImGui::Text("loadavg: %s", Proc->get("procloadavg")->text);
+                    ImGui::Text("stat: %s", Proc->get("procstat")->text);
                }
 
                //ImGui::Checkbox("demo", &show_demo_window);
@@ -608,6 +558,13 @@ ImGui::SliderInt("processed", &proci, 0, procimax);
                     ImGui::Separator();
                     if (ImGui::Button("[c]lose") || ImGui::IsKeyPressed(ImGuiKey_C))
                          show_about = false;
+                    ImGui::SameLine();
+                    if (ImGui::Button("[q]uit") || ImGui::IsKeyPressed(ImGuiKey_Q))
+                    {
+                         delete Proc;
+                         delete K3B;
+                         glfwSetWindowShouldClose(window, 1);
+                    }
                     ImGui::End();
                }
           }
@@ -620,6 +577,7 @@ ImGui::SliderInt("processed", &proci, 0, procimax);
                     ImGui::Text("really quit ?");
                     if (ImGui::Button("[y]es") || ImGui::IsKeyPressed(ImGuiKey_Y))
                     {
+                         delete Proc;
                          delete K3B;
                          glfwSetWindowShouldClose(window, 1);
                     }

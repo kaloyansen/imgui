@@ -23,8 +23,13 @@ void K3Proc::append(const char* arg, ...)
 
 void K3Proc::appends(const char* name)
 {
-     this->buffer[name] = new freedom;
-     this->size++;
+     //Freedom* free = new Freedom;
+     //*(free->valeur) = 0;
+     //*(free->text) = "";
+
+     
+     this->buffer[name] = new Freedom();     
+     this->size ++;
      this->info(1, name);
 }
 
@@ -38,27 +43,169 @@ void K3Proc::remove(const char* name)
      this->info(0, name);
 }
 
-freedom* K3Proc::get(const char* name)
+Freedom* K3Proc::get(const char* name)
 {
      auto it = this->buffer.find(name);
      if (it != this->buffer.end()) return it->second;
-     else return nullptr;
+     info(3, name);
+     return nullptr;
 }
 
 void K3Proc::fill(const char* name, float value)
 {
-     float* fector = this->get(name)->value;
-     if (fector == nullptr) return;
-     *fector = value;
+     this->get(name)->valeur.push_back(value);
 }
+
+
+const char* K3Proc::setext(const char* name, const char* value)
+{
+     this->get(name)->text = value;
+     return value;
+}
+
+void K3Proc::char2fector(const char* name)
+{
+     Freedom* free = this->get(name);
+     this->reset(free);
+     //std::vector<float> fector = free->valeur;
+     const char* text = free->text;
+
+
+     std::istringstream iss(text);
+     float current;
+     for (int i = 0; i < 7; ++i)
+     {
+          iss >> current;
+          free->valeur.push_back(current);
+     }
+
+     return;
+
+     
+     char* copy = new char(*text);
+
+     // Tokenize the input string based on whitespace
+     char* token = strtok(const_cast<char*>(copy), " ");
+     while (token != nullptr)
+     {
+          // Convert token to float and add to the result vector
+          float value = std::strtod(token, nullptr);
+          free->valeur.push_back(value);
+
+          // Move to the next token
+          token = strtok(nullptr, " ");
+     }
+
+     //fector->push_back(7);
+     delete copy;
+}
+
+
+void K3Proc::connect(const char* name, const char* path)
+{
+     //const char* str =
+     this->file2char(name, path);
+     this->char2fector(name);
+     //char* message = new char;
+     //sprintf(message, "%s", str);
+     //info(7, message);
+     //delete message;
+     //this->setext(name, str);
+     //delete str;
+}
+
+void K3Proc::file2char(const char* name, const char* path)
+{
+     FILE* file = fopen(path, "r");
+     if (file == NULL) return;
+
+     char* line = new char[128];
+     fgets(line, 128, file);
+     
+     //info(sizeof(line), line);
+     fclose(file);
+
+     this->setext(name, line);
+     //delete line;
+     return;
+
+
+
+//      std::ifstream file(path);//, std::ifstream::binary);
+//      if (!file.is_open()) {
+//           this->info(3, "\ncannot open file");
+//           return;
+//      }
+
+//      //file.seekg(0, std::ios::end);
+//      //std::streampos filesize = file.tellg();
+
+//      char jline[256];
+//      fgets(jline, sizeof(jline), file);
+//      std::string line;
+//      std::streampos filesize = 0; // Initialize the file size
+
+//      std::getline(file, line);
+// //     std::getline(file, line);
+// //     std::getline(file, line);
+//      filesize = line.length();
+//      // while (std::getline(file, line))
+//      // {
+//      //      filesize += line.length() + 1;
+//      //      info(line.length(), line.c_str());
+//      // }
+
+//      //file.seekg (0, file.end);
+//      //int filesize = file.tellg();
+//      //file.seekg (0, file.beg);
+     
+//      if (filesize <= 0) this->info(filesize, "file size\n");
+
+//      //this->info(7, line.c_str());
+//      const char* linec = line.c_str();
+//      //const char* well = new char(*linec);
+//      //this->info(4, linec);
+//      //this->info(9, well);
+
+
+//      this->setext(name, linec);
+//      //return linec;//line.c_str();
+
+//      char* coutput = new char[static_cast<size_t>(filesize)]; // +1 for null terminator
+
+//      if (!coutput) {
+//           this->info(3, "\nmemory allocation failed");
+//           return;
+//      }
+
+//      // if (
+//      file.read(coutput, filesize);
+//      //      )
+//      // {
+//      //      info(3, "cannot read file\n");
+//      //      return;
+//      // }
+
+//      //coutput[filesize] = '\0'; // Null-terminate the string
+
+//      file.close();
+//      this->setext(name, coutput);
+//      //info(filesize, coutput);
+//      //delete coutput;
+//      //return coutput;
+//      //return output.data();
+}
+
 
 void K3Proc::connect(const char* name, const char* path, const char* directive)
 {
      FILE* file = fopen(path, "r");
      if (file == NULL) return;
-
      char line[256];
-     double valeur = -1.0;
+
+     //const char* line = this->connect(name, path);
+
+     float valeur = -1.0;
 
      while (fgets(line, sizeof(line), file) != NULL)
      {
@@ -79,36 +226,40 @@ void K3Proc::connect(const char* name, const char* path, const char* directive)
 
      fclose(file);
 
-     float* data = this->get(name)->value;
-     *data = valeur;
+     this->get(name)->valeur.push_back(valeur);
 }
 
-void K3Proc::connect(const char* name, const char* path)
+void K3Proc::memory(const char* total, const char* free)
 {
-     FILE* file = fopen(path, "r");
-     if (file == NULL) return;
-
-     char line[256];
-     fgets(line, sizeof(line), file);
-
-     fclose(file);
-
-     std::string* data = this->get(name)->text;
-
-     *data = line;
+     if (sysinfo(&this->meminfo) != 0) return;
+     this->get(total)->valeur.push_back(this->meminfo.totalram * this->meminfo.mem_unit);
+     this->get(free)->valeur.push_back(this->meminfo.freeram * this->meminfo.mem_unit);
 }
+
+void K3Proc::storage(const char* total, const char* free)
+{
+     if (statvfs("/", &this->fsinfo) != 0) return;
+     this->get(total)->valeur.push_back(this->fsinfo.f_blocks * this->fsinfo.f_frsize);
+     this->get(free)->valeur.push_back(this->fsinfo.f_bfree * this->fsinfo.f_frsize);
+}
+
 
 void K3Proc::reset(const char* name)
 {
-     freedom* fector = this->get(name);
-     if (fector == nullptr) return;
-     *fector->value = 0;
-     *fector->text = "";
+     Freedom* yeah = this->get(name);
+     this->reset(yeah);
 }
 
-void K3Proc::dump(float* fector)
+void K3Proc::reset(Freedom* yeah)
 {
-     this->info(*fector);
+     if (yeah == nullptr) return;     
+     yeah->valeur.clear();
+     //fector->text = 0;
+}
+
+void K3Proc::dump(Freedom* yeah)
+{
+     this->info(yeah->valeur.back());
 }
 
 void K3Proc::dump()
@@ -116,7 +267,7 @@ void K3Proc::dump()
      for (auto& pair : this->buffer)
      {
           this->info(3, pair.first);
-          this->dump(pair.second->value);
+          this->dump(pair.second);
      }
 }
 
@@ -130,6 +281,7 @@ K3Proc::~K3Proc()
      for (auto& pair : this->buffer)
      {
           this->info(0, pair.first);
+          info(0, pair.first);
           delete pair.second;
      }
 }

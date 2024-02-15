@@ -7,7 +7,7 @@ K3Buffer::K3Buffer(size_t size)
 
 void K3Buffer::info(float value, const char* description = "")
 {
-     fprintf(stdout, "K3Buffer %f %s\n", value, description);
+     fprintf(stdout, "K3Buffer %f %s", value, description);
 }
 
 void K3Buffer::append(const char* arg, ...)
@@ -18,6 +18,7 @@ void K3Buffer::append(const char* arg, ...)
      va_start(arglist, arg);
      this->appends(arg);
      while ((nextarg = va_arg(arglist, const char*)) != nullptr) this->appends(nextarg);
+     this->info(1, "\n");
      va_end(arglist);
 }
 
