@@ -44,7 +44,12 @@ std::vector<float>* K3Buffer::get(const char* name)
 {
      auto it = this->buffer.find(name);
      if (it != this->buffer.end()) return it->second;
-     else return nullptr;
+
+     info(0, name);
+     info(0, " created\n");
+
+     this->appends(name);
+     return this->get(name);
 }
 
 void K3Buffer::fill(const char*name, float value)

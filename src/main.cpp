@@ -3,37 +3,33 @@
 #include "imgui_impl_opengl2.h"
 #include "K3Buffer.h"
 #include "K3Proc.h"
-
 #include <stdio.h>
 #include <stdlib.h>
-
 //#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
-
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
-
 #ifdef __APPLE__
 //#include <sys/sysinfo.h>
 #define GL_SILENCE_DEPRECATION
 #endif
 #include <GLFW/glfw3.h>
-
 #if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
 #pragma comment(lib, "legacy_stdio_definitions")
 #endif
-
 #define XVIEW 999
 #define YVIEW 666
 #define BUFSIZE 600
 #define DEBUG true
 #define VERSION 0.2
 
+///////////////////////////////////////////////////////////////////////////////////
 int screen_width;
 int screen_height;
+char * sinfo_version = new char[111];
 
 static void glfw_error_callback(int error, const char* description)
 {
@@ -160,7 +156,7 @@ void plotBuffer(std::vector<float>* buffer, const char* title = "",
 
      sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min, last, max, unit);
 
-     ImGui::PlotLines("", buffer->data(), size, 0, overlay, min, max, ImVec2(screen_width, screen_height / 7));
+     ImGui::PlotLines("", buffer->data(), size, 0, overlay, min, max, ImVec2(screen_width - 16, screen_height / 10));
 }
 
 
@@ -212,23 +208,21 @@ int main(int, char**)
      ImGui_ImplGlfw_InitForOpenGL(window, true);
      ImGui_ImplOpenGL2_Init();
 
-     bool show_demo_window = false;
+     bool show_main = true;
      bool show_control = false;
      bool show_about = false;
-     bool show_quit = false;
+     bool show_debug = false;
+     bool show_demo_window = false;
+
      bool do_not_update_system_info = false;
      ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
      int procimax = 0;
      int proci;
+     
 
      K3Buffer* K3B = new K3Buffer(BUFSIZE);
-     K3B->append("loadavg0", "loadavg1", "loadavg2", "loadavg3", "cpufreq", "appfreq", "upfreq", "freemem", "freespace", nullptr);
-
-     K3Proc* Proc = new K3Proc();
-     Proc->append("loadavg0", "loadavg1", "loadavg2", "loadavg3", "cpufreq", "appfreq", "upfreq", "totalmem", "freemem", "freespace", "totalspace", "procstat", "procloadavg", nullptr);
-
-     
+     K3Proc* Proc = new K3Proc();     
 
      int loop = 0;
      int uloop = 0;
@@ -236,10 +230,11 @@ int main(int, char**)
      float buftime;
      float font_scale = 1.7f;
      const char* status = "unknown";
+     sprintf(sinfo_version, "sinfo v%3.1f", VERSION);
 
      static ImGuiWindowFlags mainWindowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings |  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
      static ImGuiWindowFlags controlWindowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
-     static ImGuiTableFlags tableFlags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_SizingFixedFit;
+//     static ImGuiTableFlags tableFlags = ImGuiTableFlags_SizingStretchSame | ImGuiTableFlags_SizingFixedFit;
      // Main loop
      while (!glfwWindowShouldClose(window))
      {
@@ -255,67 +250,90 @@ int main(int, char**)
           io.FontGlobalScale = font_scale;
 
 
-          // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+          if (ImGui::IsKeyPressed(ImGuiKey_A))
+          {
+               show_about = show_about == true ? false : true;
+               show_control = false;
+               show_debug = false;
+          }
+          if (ImGui::IsKeyPressed(ImGuiKey_B))
+          {
+               show_about = false;
+               show_control = false;
+               show_debug = show_debug == true ? false : true;
+          }
+          if (ImGui::IsKeyPressed(ImGuiKey_C))
+          {
+               show_about = false;
+               show_control = show_control == true ? false : true;
+               show_debug = false;
+          }
+          
+
+          if (ImGui::IsKeyPressed(ImGuiKey_D)) K3B->dump();
+          if (ImGui::IsKeyPressed(ImGuiKey_R))
+          {
+               K3B->reset();
+               uloop = 0;
+               delay = 1;
+               show_about = false;
+               show_debug = false;
+               show_control = false;
+          }
+          if (ImGui::IsKeyPressed(ImGuiKey_Q))
+          {
+               delete Proc;
+               delete K3B;
+               glfwSetWindowShouldClose(window, 1);
+          }
+               
           if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 
-          // 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+          delay = delay > 0 ? delay : 1;
+          do_not_update_system_info = loop % delay ? true : false;
+          if (!do_not_update_system_info)
           {
-               delay = delay > 0 ? delay : 1;
-               do_not_update_system_info = loop % delay ? true : false;
-               if (!do_not_update_system_info)
-               {
-                    uloop++;
-                    //updateSystemInfo(&totalMem, &freeMem, &totalSpace, &freeSpace, loadavgarr, &cpufreq,  &procloadavg,  &procstat);
-                    Proc->connect("cpufreq", "/proc/cpuinfo", "cpu MHz");
-                    Proc->memory("totalmem", "freemem");
-                    Proc->storage("totalspace", "freespace");
-                    Proc->connect("procstat", "/proc/stat");
-                    Proc->connect("procloadavg", "/proc/loadavg");
-//               }
+               uloop++;
+               //Proc->connect();
+               Proc->connect("cpufreq", "/proc/cpuinfo", "cpu MHz");
+               Proc->get_sysinfo("totalmem", "freemem", "uptime", "procs");
+               Proc->get_statvfs("totalspace", "freespace");
+               Proc->processor("cpunumber");
+               Proc->connect("procstat", "/proc/stat");
+               Proc->connect("procloadavg", "/proc/loadavg");
 
-                    if (uloop < BUFSIZE) status = "load";
-                    else if (uloop == BUFSIZE) status = "done";
-                    else status = "run";
+               if (uloop < BUFSIZE) status = "load";
+               else if (uloop == BUFSIZE) status = "done";
+               else status = "run";
 
-                    if (strcmp("done", status) == 0) delay = 6;
+               if (strcmp("done", status) == 0) delay = 6;
 //               if (status == "done") delay = 6;
-                    float appfreq = 1.0f / io.DeltaTime;
-                    float upfreq = appfreq / delay;
+               float appfreq = 1.0f / io.DeltaTime;
+               float upfreq = appfreq / delay;
 
-                    buftime = float(BUFSIZE) / upfreq;
+               buftime = float(BUFSIZE) / upfreq;
                               
-                    proci = Proc->get("procloadavg")->valeur[3];
-                    procimax = proci > procimax ? proci : proci * 2;
+               proci = Proc->get("procloadavg")->valeur[3];
+               procimax = proci > procimax ? proci : proci * 2;
 
 //               if (!do_not_update_system_info)
 //               {
-                    K3B->fill("cpufreq", Proc->get("cpufreq")->valeur.back());
-                    K3B->fill("freespace", 100 * Proc->get("freespace")->valeur.back() / Proc->get("totalspace")->valeur.back());
-                    K3B->fill("freemem", 100 * Proc->get("freemem")->valeur.back() / Proc->get("totalmem")->valeur.back());
-                    //K3B->fill("freespace", rom);
-                    //K3B->fill("freemem", ram);
-                    K3B->fill("upfreq", upfreq);
-                    K3B->fill("appfreq", appfreq);
-                    K3B->fill("loadavg0", Proc->get("procloadavg")->valeur[0]);
-                    K3B->fill("loadavg1", Proc->get("procloadavg")->valeur[1]);
-                    K3B->fill("loadavg2", Proc->get("procloadavg")->valeur[2]);
-                    K3B->fill("loadavg3", Proc->get("procloadavg")->valeur[3]);
-               }
+               K3B->fill("cpunumber", Proc->get("cpunumber")->valeur.back());
+               K3B->fill("cpufreq", Proc->get("cpufreq")->valeur.back());
+               K3B->fill("freespace", 100 * Proc->get("freespace")->valeur.back() / Proc->get("totalspace")->valeur.back());
+               K3B->fill("freemem", 100 * Proc->get("freemem")->valeur.back() / Proc->get("totalmem")->valeur.back());
+               K3B->fill("uptime", Proc->get("uptime")->valeur.back());
+               K3B->fill("procs", Proc->get("procs")->valeur.back());
+               K3B->fill("upfreq", upfreq);
+               K3B->fill("appfreq", appfreq);
+               K3B->fill("loadavg0", Proc->get("procloadavg")->valeur[0]);
+               K3B->fill("loadavg1", Proc->get("procloadavg")->valeur[1]);
+               K3B->fill("loadavg2", Proc->get("procloadavg")->valeur[2]);
+               K3B->fill("loadavg3", Proc->get("procloadavg")->valeur[3]);
+          }
 
-               if (ImGui::IsKeyPressed(ImGuiKey_D)) K3B->dump();
-               if (ImGui::IsKeyPressed(ImGuiKey_R))
-               {
-                    K3B->reset();
-                    uloop = 0;
-                    delay = 1;
-               }
-
-// for (int i = 0; i < IM_ARRAYSIZE(plotData); i++)
-               // {
-               //      plotData[i - 1] = plotData[i];
-               // }
-               // plotData[BUFSIZE - 1] = loadavgarr[3];
-
+          if (show_main)
+          {
                
                const ImGuiViewport* viewport = ImGui::GetMainViewport();
                ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -333,60 +351,55 @@ int main(int, char**)
 
 
 
-               // if (ImGui::BeginMenu("control"))
-               // {
-               //      ImGui::MenuItem("hmmmm", NULL, &show_control);
-               //      ImGui::EndMenu();
-               // }
-
-
-               if (ImGui::BeginTable("system", 6, tableFlags, ImVec2(800, 0)))
+               if (ImGui::SmallButton("[c]ontrol"))
                {
-                    //sprintf(buf, "%03d", i);
-                    ImGui::TableNextColumn();
-                    ImGui::Text("sinfo v%3.1f", VERSION);
-                    ImGui::TableNextColumn();
-                    ImGui::Text("rate, s");
-                    ImGui::TableNextColumn();
-                    ImGui::Text("FPS");
-                    ImGui::TableNextColumn();
-                    ImGui::Text("updates");
-                    ImGui::TableNextColumn();
-                    ImGui::Text("loops/60");
-//                    ImGui::TableNextRow();
-                    ImGui::TableNextColumn();
-                    ImGui::ProgressBar(0.1f * proci, ImVec2(0.0f, 0.0f), status);
-                    // ImGui::TableNextColumn();
-                    // ImGui::Text("history:");
-                    // ImGui::TableNextColumn();
-                    // ImGui::Text("%6.1f s", buftime);
-                    ImGui::TableNextColumn();
-
-                    if (show_control || show_about)
-                    {
-                         if (ImGui::Button("[c]lose") || ImGui::IsKeyPressed(ImGuiKey_C))
-                              show_control = false;
-                    }
-                    else
-                    {
-                         if (ImGui::Button("[k]ontrol") || ImGui::IsKeyPressed(ImGuiKey_K))
-                              show_control = true;
-                    }
-                    
-                    ImGui::TableNextColumn();
-                    ImGui::Text("%.3f", 1.0f / io.Framerate);
-                    ImGui::TableNextColumn();
-                    ImGui::Text("%.1f", io.Framerate);
-                    ImGui::TableNextColumn();
-                    ImGui::Text("%d", uloop);
-                    ImGui::TableNextColumn();
-                    ImGui::Text("%d/%d", loop, loop / 60);
-                    ImGui::TableNextColumn();
-                    if (ImGui::IsKeyPressed(ImGuiKey_Q) || ImGui::Button("[q]uit"))
-                         show_about = true;
-//                         glfwSetWindowShouldClose(window, 1);
-                    ImGui::EndTable();
+                    show_about = false;
+                    show_control = true;
+                    show_debug = false;
                }
+
+               ImGui::SameLine();
+               ImGui::ProgressBar(0.1f * proci, ImVec2(0, 22), status);
+
+               ImGui::SameLine();
+               if (ImGui::SmallButton("[q]uit"))
+               {
+                    delete Proc;
+                    delete K3B;
+                    glfwSetWindowShouldClose(window, 1);
+               }
+
+
+/*               if (ImGui::BeginTable("system", 3, tableFlags, ImVec2(screen_width, 0)))
+                 {
+
+                 ImGui::TableNextColumn();
+                 ImGui::Text("loops/60:%d/%d", loop, loop / 60);
+
+                 //sprintf(buf, "%03d", i);
+                 ImGui::TableNextColumn();
+                 ImGui::Text("sinfo v%3.1f", VERSION);
+
+                 ImGui::TableNextColumn();
+                 ImGui::Text("rate/s:%.3f", 1.0f / io.Framerate);
+
+                 ImGui::TableNextColumn();
+                 //ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
+                 ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "FPS:%.1fHz", io.Framerate);
+
+
+                 ImGui::TableNextColumn();
+                 ImGui::Button("[c]ontrol");
+
+                 ImGui::TableNextColumn();
+                 ImGui::ProgressBar(0.1f * proci, ImVec2(0.0f, 0.0f), status);
+
+                 ImGui::TableNextColumn();
+                 ImGui::Button("[q]uit");
+
+                 ImGui::EndTable();
+                 }
+*/
 
                //ImGui::Checkbox("pause", &do_not_update_system_info);
                //ImGui::ColorEdit3("clear color", (float*)&clear_color);
@@ -409,116 +422,68 @@ int main(int, char**)
 //               ImGui::Unindent();
 
                plotBuffer(K3B->get("loadavg3"), "running processes");
+               plotBuffer(K3B->get("procs"), "total processes");
+               plotBuffer(K3B->get("cpunumber"), "cpu number");
                plotBuffer(K3B->get("cpufreq"), "processor frequence", "MHz");
                plotBuffer(K3B->get("appfreq"), "imgui frequence", "Hz");
                plotBuffer(K3B->get("upfreq"), "app frequence", "Hz");
+               plotBuffer(K3B->get("uptime"), "system uptime", "s");
                plotBuffer(K3B->get("freemem"), "free memory", "%");
                plotBuffer(K3B->get("freespace"), "free storage", "%");
 
+               ImGui::End();
+          }
 
-
-// ImGui::PlotLines("", bufcpufreq, BUFSIZE, BUFSIZE,
-               //                  "processor frequence, MHz");
-               // ImGui::SameLine();
-               // sprintf(overlay, "%7.1f", cpufreq);
-               // ImGui::ProgressBar(cpufreq / 1111, ImVec2(333.0f, 0.0f), overlay);
-               
-
-               // sprintf(overlay, "update frequence %7.1f Hz", upfreq);
-               // ImGui::ProgressBar(upfreq / 100, ImVec2(0.0f, 50.0f), overlay);
-
-               /*
-                 sprintf(overlay, "RAM %d/%d Mo", int(freeMem / 1024 / 1024), int(totalMem / 1024 / 1024));
-                 ImGui::ProgressBar(ram / 100, ImVec2(0.0f, 50.0f), overlay);
-//               ImGui::SameLine();
-
-sprintf(overlay, "ROM %d/%d Go", int(freeSpace / 1024 / 1024 / 1024), int(totalSpace / 1024 / 1024 /1024));
-ImGui::ProgressBar(rom / 100, ImVec2(0.0f, 50.0f), overlay);
-
-ImGui::Separator();
-
-ImGui::SliderInt("processed", &proci, 0, procimax);
-               */
-
-
-// if (uloop > BUFSIZE)
-               // {
-
-/*               ImGui::SeparatorText("plots");
-
-                 sprintf(overlay, "%12.0f Hz", cpufreq * 1000 * 1000);
-                 ImGui::PlotLines("core frequence", bufcpufreq, BUFSIZE, 0, overlay);
-
-                 ImGui::PlotLines("imgui frequence", bufappfreq, BUFSIZE);
-                 ImGui::Text("%7.1f Hz", appfreq);
-
-                 ImGui::PlotLines("update frequence", bufupfreq, BUFSIZE);
-                 ImGui::Text("%7.1f Hz", upfreq);
-                    
-                 ImGui::PlotLines("current load", bufloadavg3, BUFSIZE);
-                 ImGui::PlotLines("01 min load avg", bufloadavg0, BUFSIZE);
-                 ImGui::PlotLines("05 min load avg", bufloadavg1, BUFSIZE);
-                 ImGui::PlotLines("15 min load avg", bufloadavg2, BUFSIZE);
-*/
-               // }
-               // else
-               // {
-               //      int progress = 100 - (100 * float(BUFSIZE - uloop) / BUFSIZE);
-               //      ImGui::Text("loading ...");
-               //      ImGui::Text("calibrate process load");
-               //      ImGui::SameLine();
-               //      ImGui::ProgressBar(float(progress)/100, ImVec2(0.0f, 0.0f));
-               //      ImGui::Text("calculate one min average");
-               //      ImGui::SameLine();
-               //      ImGui::ProgressBar(float(progress)/100, ImVec2(0.0f, 0.0f));
-               //      ImGui::Text("calculate five min average");
-               //      ImGui::SameLine();
-               //      ImGui::ProgressBar(float(progress)/100, ImVec2(0.0f, 0.0f));
-               //      ImGui::Text("calculate fifteen min acerage");
-               //      ImGui::SameLine();
-               //      ImGui::ProgressBar(float(progress)/100, ImVec2(0.0f, 0.0f));
-               // }
-
-
-//               ImGui::Indent();
-
-               if (DEBUG)
+          if (show_debug)
+          {
+               if (ImGui::Begin("debug", &show_debug, controlWindowFlags))
                {
                     ImGui::SeparatorText("debug");
                     // ImGui::Text("loadavg: %s", procloadavg.c_str());
                     // ImGui::Text("stat: %s", procstat.c_str());
                     ImGui::Text("loadavg: %s", Proc->get("procloadavg")->text);
                     ImGui::Text("stat: %s", Proc->get("procstat")->text);
+                    ImGui::End();
                }
-
-               //ImGui::Checkbox("demo", &show_demo_window);
-               //ImGui::Checkbox("control", &show_control);
-//               ImGui::Unindent();
-
-               //*poopen = false;
-//               if (poopen && ImGui::Button("quit")) boopen = false;
-               ImGui::End();
           }
 
           if (show_control)
           {
                if (ImGui::Begin("control", &show_control, controlWindowFlags))
                {
-                    if (ImGui::Button("[a]bout") || ImGui::IsKeyPressed(ImGuiKey_A))
+                    if (ImGui::Button("[a]bout"))
+                    {
                          show_about = true;
-                    ImGui::SameLine();
-                    if (ImGui::Button("[c]lose") || ImGui::IsKeyPressed(ImGuiKey_C))
+                         show_debug = false;
                          show_control = false;
-                    // ImGui::SameLine();
-                    // if (ImGui::Button("[d]ump") || ImGui::IsKeyPressed(ImGuiKey_D))
-                    //      K3B->dump();
-                    // ImGui::SameLine();
-                    // if (ImGui::Button("[r]eset") || ImGui::IsKeyPressed(ImGuiKey_R))
-                    // {
-                    //      K3B->reset();
-                    //      uloop = 0;
-                    //      delay = 1;
-                    // }
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("de[b]ug"))
+                    {
+                         show_about = false;
+                         show_debug = true;
+                         show_control = false;
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("[c]lose"))
+                    {
+                         show_about = false;
+                         show_debug = false;
+                         show_control = false;
+                    }
+                    ImGui::SameLine();
+                    if (ImGui::Button("[d]ump")) K3B->dump();
+                    ImGui::SameLine();
+                    if (ImGui::Button("[r]eset"))
+                    {
+                         K3B->reset();
+                         uloop = 0;
+                         delay = 1;
+                         show_about = false;
+                         show_debug = false;
+                         show_control = false;
+                    }
+
                     ImGui::SeparatorText("");
                     
                     char bufoverlay[33];
@@ -539,7 +504,7 @@ ImGui::SliderInt("processed", &proci, 0, procimax);
 
           if (show_about)
           {
-               show_control = false;
+               //show_control = false;
                if (ImGui::Begin("about", &show_about, controlWindowFlags))
                {
                     ImGui::Text("sinfo v%3.1f", VERSION);
@@ -556,35 +521,7 @@ ImGui::SliderInt("processed", &proci, 0, procimax);
                     ImGui::SeparatorText("copyleft 2023-2024");
                     ImGui::Text("triplehelix-consulting.com");
                     ImGui::Separator();
-                    if (ImGui::Button("[c]lose") || ImGui::IsKeyPressed(ImGuiKey_C))
-                         show_about = false;
-                    ImGui::SameLine();
-                    if (ImGui::Button("[q]uit") || ImGui::IsKeyPressed(ImGuiKey_Q))
-                    {
-                         delete Proc;
-                         delete K3B;
-                         glfwSetWindowShouldClose(window, 1);
-                    }
-                    ImGui::End();
-               }
-          }
-
-          if (show_quit)
-          {
-               if (ImGui::Begin("quit", &show_quit, controlWindowFlags))
-               {
-                    ImGui::Text("sinfo v%3.1f", VERSION);
-                    ImGui::Text("really quit ?");
-                    if (ImGui::Button("[y]es") || ImGui::IsKeyPressed(ImGuiKey_Y))
-                    {
-                         delete Proc;
-                         delete K3B;
-                         glfwSetWindowShouldClose(window, 1);
-                    }
-
-                    ImGui::SameLine();
-                    if (ImGui::Button("[c]ancel") || ImGui::IsKeyPressed(ImGuiKey_C))
-                         show_quit = false;
+                    if (ImGui::Button("c[a]ncel")) show_about = false;
                     ImGui::End();
                }
           }

@@ -47,8 +47,12 @@ Freedom* K3Proc::get(const char* name)
 {
      auto it = this->buffer.find(name);
      if (it != this->buffer.end()) return it->second;
-     info(3, name);
-     return nullptr;
+
+     info(0, name);
+     info(0, " created\n");
+
+     this->appends(name);
+     return this->get(name);
 }
 
 void K3Proc::fill(const char* name, float value)
@@ -98,6 +102,18 @@ void K3Proc::char2fector(const char* name)
 
      //fector->push_back(7);
      delete copy;
+}
+
+
+unsigned int K3Proc::connect()
+{
+     this->connect("cpufreq", "/proc/cpuinfo", "cpu MHz");
+     this->get_sysinfo("totalmem", "freemem", "uptime", "procs");
+     this->get_statvfs("totalspace", "freespace");
+     this->processor("cpunumber");
+     this->connect("procstat", "/proc/stat");
+     this->connect("procloadavg", "/proc/loadavg");
+     return 0;
 }
 
 
@@ -229,18 +245,51 @@ void K3Proc::connect(const char* name, const char* path, const char* directive)
      this->get(name)->valeur.push_back(valeur);
 }
 
-void K3Proc::memory(const char* total, const char* free)
+void K3Proc::processor(const char* cpu_number)
 {
-     if (sysinfo(&this->meminfo) != 0) return;
-     this->get(total)->valeur.push_back(this->meminfo.totalram * this->meminfo.mem_unit);
-     this->get(free)->valeur.push_back(this->meminfo.freeram * this->meminfo.mem_unit);
+     unsigned int cpu_num;
+     getcpu(&cpu_num, nullptr);
+     this->get(cpu_number)->valeur.push_back(cpu_num);
+
+     //long freq = sysconf(_SC_CLK_TCK);
+
+     //this->get(cpu_number)->valeur.push_back(static_cast<double>(sysconf(_SC_CLK_TCK)));
+//     int cpu_count = cpufreq_get_num_cpus();
+
+     //int number_of_processors = get_nprocs();
+     //info(number_of_processors, "wow\n");
+
 }
 
-void K3Proc::storage(const char* total, const char* free)
+void K3Proc::get_sysinfo(const char* total, const char* free, const char* uptime, const char* procs)
 {
-     if (statvfs("/", &this->fsinfo) != 0) return;
-     this->get(total)->valeur.push_back(this->fsinfo.f_blocks * this->fsinfo.f_frsize);
-     this->get(free)->valeur.push_back(this->fsinfo.f_bfree * this->fsinfo.f_frsize);
+     if (sysinfo(&this->struct_sysinfo) != 0) return;
+     this->get(total)->valeur.push_back(this->struct_sysinfo.totalram * this->struct_sysinfo.mem_unit);
+     this->get(free)->valeur.push_back(this->struct_sysinfo.freeram * this->struct_sysinfo.mem_unit);
+     this->get(uptime)->valeur.push_back(this->struct_sysinfo.uptime);
+     this->get(procs)->valeur.push_back(this->struct_sysinfo.procs);
+
+
+     // long double total_time = struct_sysinfo.totalram - struct_sysinfo.freeram;
+     // total_time += struct_sysinfo.totalswap - struct_sysinfo.freeswap;
+     // total_time += struct_sysinfo.sharedram;
+     // total_time += struct_sysinfo.bufferram;
+
+     // long double total_idle_time = struct_sysinfo.idle;
+     // total_idle_time += struct_sysinfo.bufferram;
+     // total_idle_time += struct_sysinfo.freeram;
+     // total_idle_time += struct_sysinfo.freeswap;
+
+     // long double total_usage = total_time - total_idle_time;
+     // double processor_usage = static_cast<double>(total_usage / total_time) * 100.0;
+   
+}
+
+void K3Proc::get_statvfs(const char* total, const char* free)
+{
+     if (statvfs("/", &this->struct_statvfs) != 0) return;
+     this->get(total)->valeur.push_back(this->struct_statvfs.f_blocks * this->struct_statvfs.f_frsize);
+     this->get(free)->valeur.push_back(this->struct_statvfs.f_bfree * this->struct_statvfs.f_frsize);
 }
 
 
