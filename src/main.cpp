@@ -39,62 +39,6 @@ static void glfw_error_callback(int error, const char* description)
      fprintf(stderr, "glfw %d %s\n", error, description);
 }
 
-
-
-void getState(const char* path, std::string* data)
-{
-     FILE* file = fopen(path, "r");
-     if (file == NULL) return;
-
-     char line[256];
-     fgets(line, sizeof(line), file);
-     *data = line;
-     fclose(file);
-     
-
-     // std::ifstream file(path);
-     // if (!file.is_open()) return;
-     // std::getline(file, *data);
-}
-
-
-void updateSystemInfo(long long* totalMem, long long* freeMem,
-                      long long* totalSpace, long long* freeSpace,
-                      double* loadavgarr, float* cpufreq,
-                      std::string* procloadavg, std::string* procstat)
-{
-
-     struct sysinfo memInfo;
-     sysinfo(&memInfo);
-     *totalMem = memInfo.totalram * memInfo.mem_unit;
-     *freeMem = memInfo.freeram * memInfo.mem_unit;
-
-     struct statvfs vfs;
-     if (statvfs("/", &vfs) != 0)
-     {// failed to get filesystem statistics
-          *totalSpace = 100;
-          *freeSpace = 1;
-
-     } else {
-          
-          *totalSpace = vfs.f_blocks * vfs.f_frsize;
-          *freeSpace = vfs.f_bfree * vfs.f_frsize;
-     }
-
-
-     
-     // std::ifstream loadFile("/proc/loadavg");
-     // if (!loadFile.is_open()) return;
-     // std::getline(loadFile, *loadLine);
-     getState("/proc/stat", procstat);
-     getState("/proc/loadavg", procloadavg);
-
-
-     std::istringstream iss(*procloadavg);
-     for (int i = 0; i < 7; ++i) iss >> loadavgarr[i];
-
-}
-
 void plotBuffer(std::vector<float>* buffer, const char* title = "",
                 const char* unit = "", int size = BUFSIZE)
 {
@@ -134,7 +78,6 @@ void bufferMonitor(float buffer[], int size,
 int main(int, char**)
 {
      glfwSetErrorCallback(glfw_error_callback);
-     //glfwSetErrorCallback(error);
      if (!glfwInit()) return 1;
 
      glfw_error_callback(-1, "this is not an error\n");
@@ -152,10 +95,9 @@ int main(int, char**)
      IMGUI_CHECKVERSION();
      ImGui::CreateContext();
      ImGuiIO& io = ImGui::GetIO(); (void)io;
-     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
-     // Setup Dear ImGui style
      ImGui::StyleColorsClassic();
      //ImGuiStyle& style = ImGui::GetStyle();
      //style.ScaleAllSizes(2);
@@ -167,26 +109,19 @@ int main(int, char**)
 
      K3Buffer* K3B = new K3Buffer(BUFSIZE);
      K3Proc* Proc = new K3Proc();
-     K3Key showin(3);
+     static K3Key showin(3);
 
-     //showin.hide();
-
-
-
-     bool do_not_update_system_info = false;
-     bool quit = false;
-     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+     static bool do_not_update_system_info = false;
+     static bool quit = false;
 
      int procimax = 0;
      int proci;
-     
-
      int loop = 0;
      int uloop = 0;
      int delay = 1;
      float buftime;
      float font_scale = 1.7f;
-     const char* status = "unknown";
+     static const char* status = "unknown";
 
      static ImGuiWindowFlags mainWindowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings |  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
      static ImGuiWindowFlags controlWindowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
@@ -210,6 +145,7 @@ int main(int, char**)
           if (ImGui::IsKeyPressed(ImGuiKey_B)) showin.flip(WIN_DEBUG);
           if (ImGui::IsKeyPressed(ImGuiKey_C)) showin.flip(WIN_CONTROL);
           if (ImGui::IsKeyPressed(ImGuiKey_D)) K3B->dump();
+          if (ImGui::IsKeyPressed(ImGuiKey_Q)) quit = true;
           if (ImGui::IsKeyPressed(ImGuiKey_R))
           {
                K3B->reset();
@@ -219,7 +155,7 @@ int main(int, char**)
           }
                
           delay = delay > 0 ? delay : 1;
-          do_not_update_system_info = loop % delay ? true : false;
+          do_not_update_system_info = loop % delay;// ? true : false;
           if (!do_not_update_system_info)
           {
                uloop++;
@@ -358,7 +294,7 @@ int main(int, char**)
           int display_w, display_h;
           glfwGetFramebufferSize(window, &display_w, &display_h);
           glViewport(0, 0, display_w, display_h);
-          glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+          //glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
           glClear(GL_COLOR_BUFFER_BIT);
 
           ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
@@ -366,7 +302,7 @@ int main(int, char**)
           glfwMakeContextCurrent(window);
           glfwSwapBuffers(window);
 
-          if (quit || ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(window, 1);
+          if (quit) glfwSetWindowShouldClose(window, 1);
      }
 
      // Cleanup

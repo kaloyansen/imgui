@@ -10,7 +10,7 @@
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
 #include <unistd.h>
-/* use system calls and functions to access hardware performance information directly with no need to parse files because this approach is more efficient and provides better control over the data retrieval process */
+/* use system calls and functions to access hardware performance information directly with no need to parse files is more efficient and provides better control over the data retrieval process */
 struct Freedom {
      std::vector<float> valeur;
      const char* text;
