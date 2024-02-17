@@ -3,6 +3,7 @@
 #include "imgui_impl_opengl2.h"
 #include "K3Buffer.h"
 #include "K3Proc.h"
+#include "K3Solo.h"
 #include <stdio.h>
 #include <stdlib.h>
 //#include <iostream>
@@ -173,6 +174,9 @@ void bufferMonitor(float buffer[], int size,
      ImGui::ProgressBar(last, ImVec2(333.0f, 0.0f), overlay);
 }
 
+
+
+
 //
 // Main code
 int main(int, char**)
@@ -208,11 +212,19 @@ int main(int, char**)
      ImGui_ImplGlfw_InitForOpenGL(window, true);
      ImGui_ImplOpenGL2_Init();
 
-     bool show_main = true;
-     bool show_control = false;
-     bool show_about = false;
-     bool show_debug = false;
-     bool show_demo_window = false;
+     K3Buffer* K3B = new K3Buffer(BUFSIZE);
+     K3Proc* Proc = new K3Proc();
+     K3Solo showtime(10);
+     /* convention:
+       0 ->   About 
+       1 -> deBug
+       2 ->   Control 
+       3 ->   Demo
+     */
+
+     showtime.setall(false);
+
+
 
      bool do_not_update_system_info = false;
      ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
@@ -220,9 +232,6 @@ int main(int, char**)
      int procimax = 0;
      int proci;
      
-
-     K3Buffer* K3B = new K3Buffer(BUFSIZE);
-     K3Proc* Proc = new K3Proc();     
 
      int loop = 0;
      int uloop = 0;
@@ -250,35 +259,16 @@ int main(int, char**)
           io.FontGlobalScale = font_scale;
 
 
-          if (ImGui::IsKeyPressed(ImGuiKey_A))
-          {
-               show_about = show_about == true ? false : true;
-               show_control = false;
-               show_debug = false;
-          }
-          if (ImGui::IsKeyPressed(ImGuiKey_B))
-          {
-               show_about = false;
-               show_control = false;
-               show_debug = show_debug == true ? false : true;
-          }
-          if (ImGui::IsKeyPressed(ImGuiKey_C))
-          {
-               show_about = false;
-               show_control = show_control == true ? false : true;
-               show_debug = false;
-          }
-          
-
+          if (ImGui::IsKeyPressed(ImGuiKey_A)) showtime.flip(0);
+          if (ImGui::IsKeyPressed(ImGuiKey_B)) showtime.flip(1);
+          if (ImGui::IsKeyPressed(ImGuiKey_C)) showtime.flip(2);
           if (ImGui::IsKeyPressed(ImGuiKey_D)) K3B->dump();
           if (ImGui::IsKeyPressed(ImGuiKey_R))
           {
                K3B->reset();
                uloop = 0;
                delay = 1;
-               show_about = false;
-               show_debug = false;
-               show_control = false;
+               showtime.setall(false);
           }
           if (ImGui::IsKeyPressed(ImGuiKey_Q))
           {
@@ -287,8 +277,6 @@ int main(int, char**)
                glfwSetWindowShouldClose(window, 1);
           }
                
-          if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
-
           delay = delay > 0 ? delay : 1;
           do_not_update_system_info = loop % delay ? true : false;
           if (!do_not_update_system_info)
@@ -314,7 +302,7 @@ int main(int, char**)
                buftime = float(BUFSIZE) / upfreq;
                               
                proci = Proc->get("procloadavg")->valeur[3];
-               procimax = proci > procimax ? proci : proci * 2;
+               procimax = proci > procimax ? proci : procimax;
 
 //               if (!do_not_update_system_info)
 //               {
@@ -332,7 +320,7 @@ int main(int, char**)
                K3B->fill("loadavg3", Proc->get("procloadavg")->valeur[3]);
           }
 
-          if (show_main)
+          if (true)
           {
                
                const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -351,15 +339,9 @@ int main(int, char**)
 
 
 
-               if (ImGui::SmallButton("[c]ontrol"))
-               {
-                    show_about = false;
-                    show_control = true;
-                    show_debug = false;
-               }
-
+               if (ImGui::SmallButton("[c]ontrol")) showtime.setone(2, true);
                ImGui::SameLine();
-               ImGui::ProgressBar(0.1f * proci, ImVec2(0, 22), status);
+               ImGui::ProgressBar(float(proci) / procimax, ImVec2(0, 22), status);
 
                ImGui::SameLine();
                if (ImGui::SmallButton("[q]uit"))
@@ -421,22 +403,22 @@ int main(int, char**)
 //               ImGui::Indentssamelin();
 //               ImGui::Unindent();
 
-               plotBuffer(K3B->get("loadavg3"), "running processes");
+               plotBuffer(K3B->get("uptime"), "system uptime", "ssb");
                plotBuffer(K3B->get("procs"), "total processes");
+               plotBuffer(K3B->get("loadavg3"), "running processes");
                plotBuffer(K3B->get("cpunumber"), "cpu number");
-               plotBuffer(K3B->get("cpufreq"), "processor frequence", "MHz");
+               plotBuffer(K3B->get("cpufreq"), "cpu frequence", "MHz");
                plotBuffer(K3B->get("appfreq"), "imgui frequence", "Hz");
                plotBuffer(K3B->get("upfreq"), "app frequence", "Hz");
-               plotBuffer(K3B->get("uptime"), "system uptime", "s");
                plotBuffer(K3B->get("freemem"), "free memory", "%");
                plotBuffer(K3B->get("freespace"), "free storage", "%");
 
                ImGui::End();
           }
 
-          if (show_debug)
+          if (showtime.status(1))
           {
-               if (ImGui::Begin("debug", &show_debug, controlWindowFlags))
+               if (ImGui::Begin("debug", showtime.is(1), controlWindowFlags))
                {
                     ImGui::SeparatorText("debug");
                     // ImGui::Text("loadavg: %s", procloadavg.c_str());
@@ -447,30 +429,15 @@ int main(int, char**)
                }
           }
 
-          if (show_control)
+          if (showtime.status(2))
           {
-               if (ImGui::Begin("control", &show_control, controlWindowFlags))
+               if (ImGui::Begin("control", showtime.is(2), controlWindowFlags))
                {
-                    if (ImGui::Button("[a]bout"))
-                    {
-                         show_about = true;
-                         show_debug = false;
-                         show_control = false;
-                    }
+                    if (ImGui::Button("[a]bout")) showtime.setone(0, true);
                     ImGui::SameLine();
-                    if (ImGui::Button("de[b]ug"))
-                    {
-                         show_about = false;
-                         show_debug = true;
-                         show_control = false;
-                    }
+                    if (ImGui::Button("de[b]ug")) showtime.setone(1, true);
                     ImGui::SameLine();
-                    if (ImGui::Button("[c]lose"))
-                    {
-                         show_about = false;
-                         show_debug = false;
-                         show_control = false;
-                    }
+                    if (ImGui::Button("[c]lose")) showtime.setall(false);
                     ImGui::SameLine();
                     if (ImGui::Button("[d]ump")) K3B->dump();
                     ImGui::SameLine();
@@ -479,9 +446,7 @@ int main(int, char**)
                          K3B->reset();
                          uloop = 0;
                          delay = 1;
-                         show_about = false;
-                         show_debug = false;
-                         show_control = false;
+                         showtime.setall(false);
                     }
 
                     ImGui::SeparatorText("");
@@ -502,10 +467,9 @@ int main(int, char**)
           }
 
 
-          if (show_about)
+          if (showtime.status(0))
           {
-               //show_control = false;
-               if (ImGui::Begin("about", &show_about, controlWindowFlags))
+               if (ImGui::Begin("about", showtime.is(0), controlWindowFlags))
                {
                     ImGui::Text("sinfo v%3.1f", VERSION);
                     ImGui::SeparatorText("code");
@@ -521,7 +485,7 @@ int main(int, char**)
                     ImGui::SeparatorText("copyleft 2023-2024");
                     ImGui::Text("triplehelix-consulting.com");
                     ImGui::Separator();
-                    if (ImGui::Button("c[a]ncel")) show_about = false;
+                    if (ImGui::Button("c[a]ncel")) showtime.setone(0, false);
                     ImGui::End();
                }
           }

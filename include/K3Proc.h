@@ -10,7 +10,8 @@
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
 #include <unistd.h>
-#include <cpufreq.h>
+//#include <cpufreq.h>
+//#include <linux/init.h>
 
 
 /* by utilizing native system calls and functions, wen access hardware performance information directly without needing to parse files in /proc
@@ -25,9 +26,10 @@ struct Freedom {
 class K3Proc {
 private:
      size_t size;
-     std::map<const char*, Freedom*> buffer;
+     std::map<const char*, Freedom*> cage;
      struct sysinfo struct_sysinfo;
      struct statvfs struct_statvfs;
+     //struct cpufreq_stats* struct_cpufreq_stats;
 
      void appends(const char*);
      void reset(const char*);

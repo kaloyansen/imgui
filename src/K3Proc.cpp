@@ -27,26 +27,26 @@ void K3Proc::appends(const char* name)
      //*(free->valeur) = 0;
      //*(free->text) = "";
 
-     
-     this->buffer[name] = new Freedom();     
+
+     this->cage[name] = new Freedom();
      this->size ++;
      this->info(1, name);
 }
 
 void K3Proc::remove(const char* name)
 {
-     auto it = this->buffer.find(name);
-     if (it != this->buffer.end()) {
+     auto it = this->cage.find(name);
+     if (it != this->cage.end()) {
           delete it->second;
-          this->buffer.erase(it);
+          this->cage.erase(it);
      }
      this->info(0, name);
 }
 
 Freedom* K3Proc::get(const char* name)
 {
-     auto it = this->buffer.find(name);
-     if (it != this->buffer.end()) return it->second;
+     auto it = this->cage.find(name);
+     if (it != this->cage.end()) return it->second;
 
      info(0, name);
      info(0, " created\n");
@@ -85,7 +85,6 @@ void K3Proc::char2fector(const char* name)
 
      return;
 
-     
      char* copy = new char(*text);
 
      // Tokenize the input string based on whitespace
@@ -137,7 +136,7 @@ void K3Proc::file2char(const char* name, const char* path)
 
      char* line = new char[128];
      fgets(line, 128, file);
-     
+
      //info(sizeof(line), line);
      fclose(file);
 
@@ -174,7 +173,7 @@ void K3Proc::file2char(const char* name, const char* path)
 //      //file.seekg (0, file.end);
 //      //int filesize = file.tellg();
 //      //file.seekg (0, file.beg);
-     
+
 //      if (filesize <= 0) this->info(filesize, "file size\n");
 
 //      //this->info(7, line.c_str());
@@ -251,6 +250,23 @@ void K3Proc::processor(const char* cpu_number)
      getcpu(&cpu_num, nullptr);
      this->get(cpu_number)->valeur.push_back(cpu_num);
 
+//unsigned long cpufreq = cpufreq_get(0);
+     //cpufreq_init();
+     //cpufreq_policy* policy = cpufreq_get_policy(0);
+
+//     if (policy != nullptr) {
+
+          ;
+//cpufreq_get_freq(policy);
+          //info(policy->cur, "= CPU 0 frequency");
+          //cpufreq_put_policy(policy);
+//     } else {
+//          info(7, "Error: Unable to get CPU frequency policy");
+//     }
+
+
+
+
      //long freq = sysconf(_SC_CLK_TCK);
 
      //this->get(cpu_number)->valeur.push_back(static_cast<double>(sysconf(_SC_CLK_TCK)));
@@ -282,7 +298,7 @@ void K3Proc::get_sysinfo(const char* total, const char* free, const char* uptime
 
      // long double total_usage = total_time - total_idle_time;
      // double processor_usage = static_cast<double>(total_usage / total_time) * 100.0;
-   
+
 }
 
 void K3Proc::get_statvfs(const char* total, const char* free)
@@ -301,7 +317,7 @@ void K3Proc::reset(const char* name)
 
 void K3Proc::reset(Freedom* yeah)
 {
-     if (yeah == nullptr) return;     
+     if (yeah == nullptr) return;
      yeah->valeur.clear();
      //fector->text = 0;
 }
@@ -313,7 +329,7 @@ void K3Proc::dump(Freedom* yeah)
 
 void K3Proc::dump()
 {
-     for (auto& pair : this->buffer)
+     for (auto& pair : this->cage)
      {
           this->info(3, pair.first);
           this->dump(pair.second);
@@ -322,15 +338,16 @@ void K3Proc::dump()
 
 void K3Proc::reset()
 {
-     for (auto& pair : this->buffer) this->reset(pair.first);
+     for (auto& pair : this->cage) this->reset(pair.first);
 }
 
 K3Proc::~K3Proc()
 {
-     for (auto& pair : this->buffer)
+     for (auto& pair : this->cage)
      {
           this->info(0, pair.first);
           info(0, pair.first);
           delete pair.second;
      }
 }
+
