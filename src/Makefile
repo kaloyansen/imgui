@@ -18,7 +18,7 @@
 
 EXE = sinfo
 IMGUI_DIR = ..
-SOURCES = main.cpp K3Buffer.cpp K3Proc.cpp K3Solo.cpp
+SOURCES = main.cpp K3Buffer.cpp K3Proc.cpp K3Key.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl2.cpp
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))

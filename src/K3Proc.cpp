@@ -351,3 +351,56 @@ K3Proc::~K3Proc()
      }
 }
 
+
+
+std::vector<std::string> K3Proc::split(const std::string& s, char delimiter)
+{
+     std::vector<std::string> tokens;
+     std::string token;
+     std::istringstream tokenStream(s);
+     while (std::getline(tokenStream, token, delimiter))
+          if (!token.empty())
+               tokens.push_back(token);
+
+     return tokens;
+}
+
+
+double K3Proc::getCPUUsage() {
+
+     std::ifstream statFile("/proc/stat");
+     if (!statFile.is_open()) return -1.0; // Failed to open /proc/stat
+
+     std::string line;
+     std::getline(statFile, line);
+     statFile.close();
+
+     // Split the line into tokens
+     std::vector<std::string> token = this->split(line, ' ');
+
+     // Calculate total CPU time
+     long long totalCPUTime = 0;
+     long long value;
+
+     for (size_t i = 1; i < token.size(); ++i)
+     {
+          try
+          {
+               value = std::stoll(token[i]);
+          }
+          catch (const std::exception& e)
+          {
+               info(1, "error converting token to long long: ");
+          }
+     }
+
+     totalCPUTime += value;
+
+     // Calculate idle CPU time
+     long long idleCPUTime = std::stoll(token[4]);
+
+     // Calculate CPU usage
+     double cpuUsage = 100.0 * (1.0 - static_cast<double>(idleCPUTime) / totalCPUTime);
+
+     return cpuUsage;
+}

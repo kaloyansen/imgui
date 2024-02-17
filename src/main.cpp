@@ -3,7 +3,7 @@
 #include "imgui_impl_opengl2.h"
 #include "K3Buffer.h"
 #include "K3Proc.h"
-#include "K3Solo.h"
+#include "K3Key.h"
 #include <stdio.h>
 #include <stdlib.h>
 //#include <iostream>
@@ -25,67 +25,20 @@
 #define YVIEW 666
 #define BUFSIZE 600
 #define DEBUG true
-#define VERSION 0.2
+#define VERSION "0.0.3"
+#define WIN_ABOUT 0
+#define WIN_DEBUG 1
+#define WIN_CONTROL 2
 
 ///////////////////////////////////////////////////////////////////////////////////
 int screen_width;
 int screen_height;
-char * sinfo_version = new char[111];
 
 static void glfw_error_callback(int error, const char* description)
 {
      fprintf(stderr, "glfw %d %s\n", error, description);
 }
 
-std::vector<std::string> split(const std::string& s, char delimiter) {
-
-     std::vector<std::string> tokens;
-     std::string token;
-     std::istringstream tokenStream(s);
-     while (std::getline(tokenStream, token, delimiter))
-          if (!token.empty())
-               tokens.push_back(token);
-
-     return tokens;
-}
-
-
-double getCPUUsage() {
-
-     std::ifstream statFile("/proc/stat");
-     if (!statFile.is_open()) return -1.0; // Failed to open /proc/stat
-
-     std::string line;
-     std::getline(statFile, line);
-     statFile.close();
-
-     // Split the line into tokens
-     std::vector<std::string> token = split(line, ' ');
-
-     // Calculate total CPU time
-     long long totalCPUTime = 0;
-
-     for (size_t i = 1; i < token.size(); ++i)
-     {
-          try
-          {
-               long long value = std::stoll(token[i]);
-               totalCPUTime += value;
-          }
-          catch (const std::exception& e)
-          {
-               glfw_error_callback(1, "error converting token to long long: ");
-          }
-     }
-
-     // Calculate idle CPU time
-     long long idleCPUTime = std::stoll(token[4]);
-
-     // Calculate CPU usage
-     double cpuUsage = 100.0 * (1.0 - static_cast<double>(idleCPUTime) / totalCPUTime);
-
-     return cpuUsage;
-}
 
 
 void getState(const char* path, std::string* data)
@@ -110,7 +63,6 @@ void updateSystemInfo(long long* totalMem, long long* freeMem,
                       double* loadavgarr, float* cpufreq,
                       std::string* procloadavg, std::string* procstat)
 {
-//     *cpufreq = getDirectiveValue("/proc/cpuinfo", "cpu MHz");//getCPUUsage();
 
      struct sysinfo memInfo;
      sysinfo(&memInfo);
@@ -183,13 +135,14 @@ int main(int, char**)
 {
      glfwSetErrorCallback(glfw_error_callback);
      //glfwSetErrorCallback(error);
-     if (!glfwInit())
-          return 1;
+     if (!glfwInit()) return 1;
 
      glfw_error_callback(-1, "this is not an error\n");
 
      // Create window with graphics context
-     GLFWwindow* window = glfwCreateWindow(XVIEW, YVIEW, "sinfo", nullptr, nullptr);
+     char sinfo_version[32];// = new char[111];
+     sprintf(sinfo_version, "sinfo v%s", VERSION);
+     GLFWwindow* window = glfwCreateWindow(XVIEW, YVIEW, sinfo_version, nullptr, nullptr);
      if (window == nullptr)
           return 1;
      glfwMakeContextCurrent(window);
@@ -214,19 +167,14 @@ int main(int, char**)
 
      K3Buffer* K3B = new K3Buffer(BUFSIZE);
      K3Proc* Proc = new K3Proc();
-     K3Solo showtime(10);
-     /* convention:
-       0 ->   About 
-       1 -> deBug
-       2 ->   Control 
-       3 ->   Demo
-     */
+     K3Key showin(3);
 
-     showtime.setall(false);
+     //showin.hide();
 
 
 
      bool do_not_update_system_info = false;
+     bool quit = false;
      ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
      int procimax = 0;
@@ -239,7 +187,6 @@ int main(int, char**)
      float buftime;
      float font_scale = 1.7f;
      const char* status = "unknown";
-     sprintf(sinfo_version, "sinfo v%3.1f", VERSION);
 
      static ImGuiWindowFlags mainWindowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings |  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
      static ImGuiWindowFlags controlWindowFlags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
@@ -259,22 +206,16 @@ int main(int, char**)
           io.FontGlobalScale = font_scale;
 
 
-          if (ImGui::IsKeyPressed(ImGuiKey_A)) showtime.flip(0);
-          if (ImGui::IsKeyPressed(ImGuiKey_B)) showtime.flip(1);
-          if (ImGui::IsKeyPressed(ImGuiKey_C)) showtime.flip(2);
+          if (ImGui::IsKeyPressed(ImGuiKey_A)) showin.flip(WIN_ABOUT);
+          if (ImGui::IsKeyPressed(ImGuiKey_B)) showin.flip(WIN_DEBUG);
+          if (ImGui::IsKeyPressed(ImGuiKey_C)) showin.flip(WIN_CONTROL);
           if (ImGui::IsKeyPressed(ImGuiKey_D)) K3B->dump();
           if (ImGui::IsKeyPressed(ImGuiKey_R))
           {
                K3B->reset();
                uloop = 0;
                delay = 1;
-               showtime.setall(false);
-          }
-          if (ImGui::IsKeyPressed(ImGuiKey_Q))
-          {
-               delete Proc;
-               delete K3B;
-               glfwSetWindowShouldClose(window, 1);
+               showin.hide();
           }
                
           delay = delay > 0 ? delay : 1;
@@ -295,7 +236,6 @@ int main(int, char**)
                else status = "run";
 
                if (strcmp("done", status) == 0) delay = 6;
-//               if (status == "done") delay = 6;
                float appfreq = 1.0f / io.DeltaTime;
                float upfreq = appfreq / delay;
 
@@ -304,8 +244,6 @@ int main(int, char**)
                proci = Proc->get("procloadavg")->valeur[3];
                procimax = proci > procimax ? proci : procimax;
 
-//               if (!do_not_update_system_info)
-//               {
                K3B->fill("cpunumber", Proc->get("cpunumber")->valeur.back());
                K3B->fill("cpufreq", Proc->get("cpufreq")->valeur.back());
                K3B->fill("freespace", 100 * Proc->get("freespace")->valeur.back() / Proc->get("totalspace")->valeur.back());
@@ -320,174 +258,98 @@ int main(int, char**)
                K3B->fill("loadavg3", Proc->get("procloadavg")->valeur[3]);
           }
 
-          if (true)
+          const ImGuiViewport* viewport = ImGui::GetMainViewport();
+          ImGui::SetNextWindowPos(viewport->WorkPos);
+          ImGui::SetNextWindowSize(viewport->WorkSize);
+          screen_width = viewport->WorkSize.x;
+          screen_height = viewport->WorkSize.y;
+
+          bool  boopen = true;
+          bool* poopen = &boopen;
+
+          ImGui::Begin("main", poopen, mainWindowFlags);
+
+          if (ImGui::SmallButton("[c]ontrol")) showin.show(WIN_CONTROL, true);
+          ImGui::SameLine();
+          ImGui::ProgressBar(float(proci) / procimax, ImVec2(0, 22), status);
+
+          ImGui::SameLine();
+          if (ImGui::SmallButton("[q]uit")) quit = true;
+
+          plotBuffer(K3B->get("uptime"), "system uptime", "ssb");
+          plotBuffer(K3B->get("procs"), "total processes");
+          plotBuffer(K3B->get("loadavg3"), "running processes");
+          plotBuffer(K3B->get("cpunumber"), "cpu number");
+          plotBuffer(K3B->get("cpufreq"), "cpu frequence", "MHz");
+          plotBuffer(K3B->get("appfreq"), "imgui frequence", "Hz");
+          plotBuffer(K3B->get("upfreq"), "app frequence", "Hz");
+          plotBuffer(K3B->get("freemem"), "free memory", "%");
+          plotBuffer(K3B->get("freespace"), "free storage", "%");
+
+          ImGui::End();
+          
+
+          if (showin.status(WIN_DEBUG) && ImGui::Begin("debug", showin.is(WIN_DEBUG), controlWindowFlags))
           {
-               
-               const ImGuiViewport* viewport = ImGui::GetMainViewport();
-               ImGui::SetNextWindowPos(viewport->WorkPos);
-               ImGui::SetNextWindowSize(viewport->WorkSize);
-               screen_width = viewport->WorkSize.x;
-               screen_height = viewport->WorkSize.y;
-
-               bool  boopen = true;
-               bool* poopen = &boopen;
-
-               ImGui::Begin("main", poopen, mainWindowFlags);
-//               ImGui::CheckboxFlags("ImGuiWindowFlags_NoTitleBar", &windowFlags, ImGuiWindowFlags_NoTitleBar);
-//               ImGui::CheckboxFlags("ImGuiWindowFlags_NoCollapse", &windowFlags, ImGuiWindowFlags_NoCollapse);
-//               ImGui::CheckboxFlags("ImGuiWindowFlags_NoScrollbar", &windowFlags, ImGuiWindowFlags_NoScrollbar);
-
-
-
-               if (ImGui::SmallButton("[c]ontrol")) showtime.setone(2, true);
-               ImGui::SameLine();
-               ImGui::ProgressBar(float(proci) / procimax, ImVec2(0, 22), status);
-
-               ImGui::SameLine();
-               if (ImGui::SmallButton("[q]uit"))
-               {
-                    delete Proc;
-                    delete K3B;
-                    glfwSetWindowShouldClose(window, 1);
-               }
-
-
-/*               if (ImGui::BeginTable("system", 3, tableFlags, ImVec2(screen_width, 0)))
-                 {
-
-                 ImGui::TableNextColumn();
-                 ImGui::Text("loops/60:%d/%d", loop, loop / 60);
-
-                 //sprintf(buf, "%03d", i);
-                 ImGui::TableNextColumn();
-                 ImGui::Text("sinfo v%3.1f", VERSION);
-
-                 ImGui::TableNextColumn();
-                 ImGui::Text("rate/s:%.3f", 1.0f / io.Framerate);
-
-                 ImGui::TableNextColumn();
-                 //ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Pink");
-                 ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "FPS:%.1fHz", io.Framerate);
-
-
-                 ImGui::TableNextColumn();
-                 ImGui::Button("[c]ontrol");
-
-                 ImGui::TableNextColumn();
-                 ImGui::ProgressBar(0.1f * proci, ImVec2(0.0f, 0.0f), status);
-
-                 ImGui::TableNextColumn();
-                 ImGui::Button("[q]uit");
-
-                 ImGui::EndTable();
-                 }
-*/
-
-               //ImGui::Checkbox("pause", &do_not_update_system_info);
-               //ImGui::ColorEdit3("clear color", (float*)&clear_color);
-
-/* buttons return true when clicked like most widgets when edited or activated */
-               
-               //ImGui::SliderFloat("RAM", &ram, 0.0f, 100.0f);
-               //ImGui::SameLine();
-               //ImGui::Text("my counter is %d", counter);
-
-               //ImGui::SliderFloat("frequence, Hz", &frequence, 1, 120);
-//               sprintf(overlay, "%12.0f Hz", cpufreq * 1000 * 1000);
-
-               // bufferMonitor(bufcpufreq, BUFSIZE, "processor frequence, MHz", 1.0f / 1111);
-               // bufferMonitor(bufappfreq, BUFSIZE, "imgui frequence, Hz", 1.0f / 100);
-               // bufferMonitor(bufupfreq, BUFSIZE, "update frequence, Hz", 1.0f / 100);
-               // bufferMonitor(bufloadavg3, BUFSIZE, "process number", 1.0f / 10);
-
-//               ImGui::Indentssamelin();
-//               ImGui::Unindent();
-
-               plotBuffer(K3B->get("uptime"), "system uptime", "ssb");
-               plotBuffer(K3B->get("procs"), "total processes");
-               plotBuffer(K3B->get("loadavg3"), "running processes");
-               plotBuffer(K3B->get("cpunumber"), "cpu number");
-               plotBuffer(K3B->get("cpufreq"), "cpu frequence", "MHz");
-               plotBuffer(K3B->get("appfreq"), "imgui frequence", "Hz");
-               plotBuffer(K3B->get("upfreq"), "app frequence", "Hz");
-               plotBuffer(K3B->get("freemem"), "free memory", "%");
-               plotBuffer(K3B->get("freespace"), "free storage", "%");
-
+               ImGui::SeparatorText("debug");
+               ImGui::Text("loadavg: %s", Proc->get("procloadavg")->text);
+               ImGui::Text("stat: %s", Proc->get("procstat")->text);
                ImGui::End();
           }
 
-          if (showtime.status(1))
+          if (showin.status(WIN_CONTROL) && ImGui::Begin("control", showin.is(WIN_CONTROL), controlWindowFlags))
           {
-               if (ImGui::Begin("debug", showtime.is(1), controlWindowFlags))
+               if (ImGui::Button("[a]bout")) showin.show(WIN_ABOUT, true);
+               ImGui::SameLine();
+               if (ImGui::Button("de[b]ug")) showin.show(WIN_DEBUG, true);
+               ImGui::SameLine();
+               if (ImGui::Button("[c]lose")) showin.hide();
+               ImGui::SameLine();
+               if (ImGui::Button("[d]ump")) K3B->dump();
+               ImGui::SameLine();
+               if (ImGui::Button("[r]eset"))
                {
-                    ImGui::SeparatorText("debug");
-                    // ImGui::Text("loadavg: %s", procloadavg.c_str());
-                    // ImGui::Text("stat: %s", procstat.c_str());
-                    ImGui::Text("loadavg: %s", Proc->get("procloadavg")->text);
-                    ImGui::Text("stat: %s", Proc->get("procstat")->text);
-                    ImGui::End();
+                    K3B->reset();
+                    uloop = 0;
+                    delay = 1;
+                    showin.hide();
                }
-          }
 
-          if (showtime.status(2))
-          {
-               if (ImGui::Begin("control", showtime.is(2), controlWindowFlags))
-               {
-                    if (ImGui::Button("[a]bout")) showtime.setone(0, true);
-                    ImGui::SameLine();
-                    if (ImGui::Button("de[b]ug")) showtime.setone(1, true);
-                    ImGui::SameLine();
-                    if (ImGui::Button("[c]lose")) showtime.setall(false);
-                    ImGui::SameLine();
-                    if (ImGui::Button("[d]ump")) K3B->dump();
-                    ImGui::SameLine();
-                    if (ImGui::Button("[r]eset"))
-                    {
-                         K3B->reset();
-                         uloop = 0;
-                         delay = 1;
-                         showtime.setall(false);
-                    }
-
-                    ImGui::SeparatorText("");
+               ImGui::SeparatorText("");
                     
-                    char bufoverlay[33];
-                    sprintf(bufoverlay, "history %10.0f seconds", buftime);
-                    ImGui::ProgressBar(buftime / 1111, ImVec2(0.0f, 0.0f), bufoverlay);
-                    ImGui::SeparatorText("control");
-                    ImGui::SliderInt("update time", &delay, 1, 100);
-                    ImGui::Separator();
-                    ImGui::Separator();
-                    ImGui::SliderFloat("font scale", &font_scale, 0.5, 5);
-                    ImGui::Separator();
-                    ImGui::ShowStyleSelector("color style");
-                    ImGui::Separator();
-                    ImGui::End();
-               }
+               char bufoverlay[33];
+               sprintf(bufoverlay, "history %10.0f seconds", buftime);
+               ImGui::ProgressBar(buftime / 1111, ImVec2(0.0f, 0.0f), bufoverlay);
+               ImGui::SeparatorText("control");
+               ImGui::SliderInt("update time", &delay, 1, 100);
+               ImGui::Separator();
+               ImGui::Separator();
+               ImGui::SliderFloat("font scale", &font_scale, 0.5, 5);
+               ImGui::Separator();
+               ImGui::ShowStyleSelector("color style");
+               ImGui::Separator();
+               ImGui::End();
           }
 
 
-          if (showtime.status(0))
+          if (showin.status(WIN_ABOUT) && ImGui::Begin("about", showin.is(WIN_ABOUT), controlWindowFlags))
           {
-               if (ImGui::Begin("about", showtime.is(0), controlWindowFlags))
-               {
-                    ImGui::Text("sinfo v%3.1f", VERSION);
-                    ImGui::SeparatorText("code");
-                    ImGui::Text("Kaloyan Krastev");
-                    ImGui::SeparatorText("powered by");
-                    ImGui::Text("ImGui");
-                    ImGui::SameLine();
-                    ImGui::Text("GLFW");
-                    ImGui::SameLine();
-                    ImGui::Text("OpenGL");
-                    ImGui::SameLine();
-                    ImGui::Text("X11");
-                    ImGui::SeparatorText("copyleft 2023-2024");
-                    ImGui::Text("triplehelix-consulting.com");
-                    ImGui::Separator();
-                    if (ImGui::Button("c[a]ncel")) showtime.setone(0, false);
-                    ImGui::End();
-               }
+               ImGui::Text(sinfo_version);
+               ImGui::SeparatorText("code");
+               ImGui::Text("Kaloyan Krastev");
+               ImGui::SeparatorText("powered by");
+               ImGui::Text("ImGui");
+               ImGui::SameLine();
+               ImGui::Text("GLFW");
+               ImGui::SameLine();
+               ImGui::Text("OpenGL");
+               ImGui::SameLine();
+               ImGui::Text("X11");
+               ImGui::SeparatorText("copyleft 2023-2024");
+               ImGui::Text("triplehelix-consulting.com");
+               ImGui::Separator();
+               if (ImGui::Button("c[a]ncel")) showin.show(WIN_ABOUT, false);
+               ImGui::End();
           }
 
 
@@ -499,19 +361,18 @@ int main(int, char**)
           glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
           glClear(GL_COLOR_BUFFER_BIT);
 
-          // If you are using this code with non-legacy OpenGL header/contexts (which you should not, prefer using imgui_impl_opengl3.cpp!!),
-          // you may need to backup/reset/restore other state, e.g. for current shader using the commented lines below.
-          //GLint last_program;
-          //glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
-          //glUseProgram(0);
           ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-          //glUseProgram(last_program);
 
           glfwMakeContextCurrent(window);
           glfwSwapBuffers(window);
+
+          if (quit || ImGui::IsKeyPressed(ImGuiKey_Q)) glfwSetWindowShouldClose(window, 1);
      }
 
      // Cleanup
+
+     delete Proc;
+     delete K3B;
 
      ImGui_ImplOpenGL2_Shutdown();
      ImGui_ImplGlfw_Shutdown();
