@@ -284,7 +284,7 @@ int main(int, char**)
                ImGui::SeparatorText("copyleft 2023-2024");
                ImGui::Text("triplehelix-consulting.com");
                ImGui::Separator();
-               if (ImGui::Button("c[a]ncel")) showin.show(WIN_ABOUT, false);
+               if (ImGui::Button("[a]ll right")) showin.show(WIN_ABOUT, false);
                ImGui::End();
           }
 
