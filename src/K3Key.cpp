@@ -11,10 +11,6 @@ bool* K3Key::is(size_t index)
 
      void* address = &bector + index;
      return (bool*)address;
-//     std::vector<bool>::iterator it = bector.begin() + index;
-     
-//     void* baddress = &it;
-//     return (bool*)baddress;
 }
 
 bool K3Key::out_of_range(size_t index) const

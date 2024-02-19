@@ -83,7 +83,7 @@ int main(int, char**)
      glfw_error_callback(-1, "this is not an error\n");
 
      // Create window with graphics context
-     char* sinfo_version = new char[33];
+     char sinfo_version[33];
      sprintf(sinfo_version, "sinfo v%s", VERSION);
      GLFWwindow* window = glfwCreateWindow(XVIEW, YVIEW, sinfo_version, nullptr, nullptr);
      if (window == nullptr)
@@ -309,6 +309,7 @@ int main(int, char**)
 
      delete Proc;
      delete K3B;
+     //delete sinfo_version;
 
      ImGui_ImplOpenGL2_Shutdown();
      ImGui_ImplGlfw_Shutdown();
