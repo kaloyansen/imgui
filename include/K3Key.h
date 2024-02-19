@@ -14,7 +14,7 @@ public:
      bool* is(size_t);
      bool status(size_t) const;
 
-     void hide();
+     void hide(void);
      void show(size_t, bool);
      void flip(size_t);
 

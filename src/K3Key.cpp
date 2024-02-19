@@ -33,7 +33,7 @@ void K3Key::flip(size_t index)
      this->show(index, !this->bector[index]);
 }
 
-void K3Key::hide()
+void K3Key::hide(void)
 {
      std::fill(this->bector.begin(), this->bector.end(), false);
 }
