@@ -166,6 +166,8 @@ int main(int, char**)
                Proc->processor("cpunumber");
                Proc->connect("procstat", "/proc/stat");
                Proc->connect("procloadavg", "/proc/loadavg");
+               //unsigned int cpufreq0 = Proc->get_cpufreq_stats(1);
+               //glfw_error_callback(cpufreq0, "\n");
 
                if (uloop < BUFSIZE) status = "load";
                else if (uloop == BUFSIZE) status = "done";

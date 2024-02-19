@@ -10,6 +10,10 @@
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
 #include <unistd.h>
+//extern "C" {
+#include <cpufreq.h>
+//}
+
 /* use system calls and functions to access hardware performance information directly with no need to parse files is more efficient and provides better control over the data retrieval process */
 struct Freedom {
      std::vector<float> valeur;
@@ -22,6 +26,7 @@ private:
      std::map<const char*, Freedom*> cage;
      struct sysinfo struct_sysinfo;
      struct statvfs struct_statvfs;
+     struct cpufreq_stats* struct_cpufreq_stats;
 
      std::vector<std::string> split(const std::string&, char);
      double getCPUUsage();
@@ -53,6 +58,7 @@ public:
      void processor(const char*);
      void get_sysinfo(const char*, const char*, const char*, const char *);
      void get_statvfs(const char*, const char*);
+     unsigned int get_cpufreq_stats(unsigned int);
 };
 
 #endif

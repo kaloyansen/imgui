@@ -35,6 +35,7 @@ LIBS =
 ifeq ($(UNAME_S), Linux) #LINUX
 	ECHO_MESSAGE = "linux"
 	LIBS += -lGL `pkg-config --static --libs glfw3`
+	LIBS += -lcpufreq
 
 	CXXFLAGS += `pkg-config --cflags glfw3`
 	CFLAGS = $(CXXFLAGS)

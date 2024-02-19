@@ -404,3 +404,20 @@ double K3Proc::getCPUUsage() {
 
      return cpuUsage;
 }
+
+
+unsigned int K3Proc::get_cpufreq_stats(unsigned int processor_number)
+{
+     //unsigned int ncpu = cpufreq_get_num_cpus();
+     //return ncpu;
+
+//cpufreq_init();
+     //cpufreq_put_stats(this->struct_cpufreq_stats);
+     //if (this->struct_cpufreq_stats == nullptr) return 1;
+     long long unsigned total_time;
+     struct cpufreq_stats* struct_new = cpufreq_get_stats(processor_number, &total_time);
+     if (!struct_new) return int(total_time);
+     unsigned long frequence = struct_new->frequency;
+     //cpufreq_exit();
+     return int(frequence);
+}
