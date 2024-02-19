@@ -270,7 +270,7 @@ int main(int, char**)
 
           if (showin.status(WIN_ABOUT) && ImGui::Begin("about", showin.is(WIN_ABOUT), controlWindowFlags))
           {
-               ImGui::Text(sinfo_version);
+               ImGui::Text("%s", sinfo_version);
                ImGui::SeparatorText("code");
                ImGui::Text("Kaloyan Krastev");
                ImGui::SeparatorText("powered by");
