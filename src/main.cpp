@@ -107,20 +107,20 @@ int main(int, char**)
      ImGui_ImplGlfw_InitForOpenGL(window, true);
      ImGui_ImplOpenGL2_Init();
 
-     K3Buffer* K3B = new K3Buffer(BUFSIZE);
-     K3Proc* Proc = new K3Proc();
+     static K3Buffer* K3B = new K3Buffer(BUFSIZE);
+     static K3Proc* Proc = new K3Proc();
      static K3Key showin(3);
 
      static bool do_not_update_system_info = false;
      static bool quit = false;
 
-     int procimax = 0;
-     int proci;
-     int loop = 0;
-     int uloop = 0;
-     int delay = 1;
-     float buftime;
-     float font_scale = 1.7f;
+     static int procimax = 0;
+     static int proci;
+     static int loop = 0;
+     static int uloop = 0;
+     static int delay = 1;
+     static float buftime;
+     static float font_scale = 2.5;
      static const char* status = "unknown";
 
      static ImGuiWindowFlags mainWindowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings |  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
@@ -201,13 +201,13 @@ int main(int, char**)
           screen_height = viewport->WorkSize.y;
 
           bool  boopen = true;
-          bool* poopen = &boopen;
+//          bool* poopen = &boopen;
 
-          ImGui::Begin("main", poopen, mainWindowFlags);
+          ImGui::Begin("main", &boopen, mainWindowFlags);
 
           if (ImGui::SmallButton("[c]ontrol")) showin.show(WIN_CONTROL, true);
           ImGui::SameLine();
-          ImGui::ProgressBar(float(proci) / procimax, ImVec2(0, 22), status);
+          ImGui::ProgressBar(float(proci) / procimax, ImVec2(0, 30), status);
 
           ImGui::SameLine();
           if (ImGui::SmallButton("[q]uit")) quit = true;
@@ -215,7 +215,7 @@ int main(int, char**)
           plotBuffer(K3B->get("uptime"), "system uptime", "ssb");
           plotBuffer(K3B->get("procs"), "total processes");
           plotBuffer(K3B->get("loadavg3"), "running processes");
-          plotBuffer(K3B->get("cpunumber"), "cpu number");
+          plotBuffer(K3B->get("cpunumber"), "current processor");
           plotBuffer(K3B->get("cpufreq"), "cpu frequence", "MHz");
           plotBuffer(K3B->get("appfreq"), "imgui frequence", "Hz");
           plotBuffer(K3B->get("upfreq"), "app frequence", "Hz");
