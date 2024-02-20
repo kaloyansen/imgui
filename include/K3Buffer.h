@@ -19,6 +19,8 @@ public:
      K3Buffer(size_t);
      ~K3Buffer();
 
+//     std::vector<float> histogram(const std::vector<float>&, int);
+     
      std::vector<float>* get(const char*);
      void info(float, const char*);
 
@@ -28,6 +30,7 @@ public:
      void remove(const char*);
      void fill(const char*, float);
      void process(std::vector<float>*, float*, float*);
+     void calcule(const char*, const int, std::vector<float>*, float*, float*, float*, float*, float*);
 };
 
 #endif

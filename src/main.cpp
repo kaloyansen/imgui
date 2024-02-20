@@ -7,12 +7,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 //#include <iostream>
-#include <fstream>
+//#include <fstream>
 #include <sstream>
 #include <string>
 #include <vector>
-#include <sys/sysinfo.h>
-#include <sys/statvfs.h>
+//#include <sys/sysinfo.h>
+//#include <sys/statvfs.h>
 #ifdef __APPLE__
 //#include <sys/sysinfo.h>
 #define GL_SILENCE_DEPRECATION
@@ -39,8 +39,55 @@ static void glfw_error_callback(int error, const char* description)
      fprintf(stderr, "glfw %d %s\n", error, description);
 }
 
-void plotBuffer(std::vector<float>* buffer, const char* title = "",
-                const char* unit = "", int size = BUFSIZE)
+void plotHistogram1(K3Buffer* objbuf, const char* name,
+                    const char* title = "", const char* siunit = "")
+{
+     const int binum = 100;
+
+     std::vector<float> hist(binum, 0);
+     float hmin, hmax, bmin, bmax, cur;
+     objbuf->calcule(name, binum, &hist, &hmin, &hmax, &bmin, &bmax, &cur);     
+     hmax = *std::max_element(hist.begin(), hist.end());
+     
+     char overlay[100];
+     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, bmin, cur, bmax, siunit);
+     ImGui::PlotHistogram("", hist.data(), binum, 0, overlay, 0, hmax, ImVec2(screen_width - 16, screen_height / 11));
+}
+
+
+void plotHistogram(std::vector<float>* buffer, const char* title = "",
+                   const char* siunit = "", int size = BUFSIZE)
+{
+     const int num_bins = 100;
+     float last_val = buffer->back();
+     float min_val = *std::min_element(buffer->begin(), buffer->end());
+     float max_val = *std::max_element(buffer->begin(), buffer->end());
+     float bin_width = (max_val - min_val) / num_bins;
+
+     std::vector<float> fector(num_bins, 0);
+     
+     for (float value : *buffer)
+     {
+          int bin_index = (int)((value - min_val) / bin_width);
+          if (bin_index >= 0 && bin_index < num_bins)
+          {
+               float old_value = fector[bin_index];
+               fector[bin_index] = old_value + 1;
+          }
+     }
+
+     float min_hist = *std::min_element(fector.begin(), fector.end());
+     float max_hist = *std::max_element(fector.begin(), fector.end());
+
+     char overlay[100];
+     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min_val, last_val, max_val, siunit);
+
+     ImGui::PlotHistogram("", fector.data(), num_bins, 0, overlay, min_hist, max_hist, ImVec2(screen_width - 16, screen_height / 11));
+
+}
+
+
+void plotHistory(std::vector<float>* buffer, const char* title = "", const char* siunit = "", int size = BUFSIZE)
 {
      float last = buffer->back();
      char overlay[100];
@@ -51,9 +98,12 @@ void plotBuffer(std::vector<float>* buffer, const char* title = "",
      K3Buffer delme(0);
      delme.process(buffer, pmin, pmax);
 
-     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min, last, max, unit);
+     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min, last, max, siunit);
 
-     ImGui::PlotLines("", buffer->data(), size, 0, overlay, min, max, ImVec2(screen_width - 16, screen_height / 10));
+     float* cuffer = buffer->data();
+     //static int sizec = IM_ARRAYSIZE(cuffer);
+
+     ImGui::PlotLines("", cuffer, size, 0, overlay, min, max, ImVec2(screen_width - 16, screen_height / 11));
 }
 
 
@@ -104,12 +154,13 @@ int main(int, char**)
      //ImGui::StyleColorsLight();
 
      // Setup Platform/Renderer backends
-     ImGui_ImplGlfw_InitForOpenGL(window, true);
-     ImGui_ImplOpenGL2_Init();
+     ImGui_ImplGlfw_InitForOpenGL(window, true); // @suppress("Invalid arguments")
+     ImGui_ImplOpenGL2_Init(); // @suppress("Invalid arguments")
 
      static K3Buffer* K3B = new K3Buffer(BUFSIZE);
      static K3Proc* Proc = new K3Proc();
      static K3Key showin(3);
+     static bool histogramode = false;          
 
      static bool do_not_update_system_info = false;
      static bool quit = false;
@@ -134,8 +185,8 @@ int main(int, char**)
           glfwPollEvents();
 
           // Start the Dear ImGui frame
-          ImGui_ImplOpenGL2_NewFrame();
-          ImGui_ImplGlfw_NewFrame();
+          ImGui_ImplOpenGL2_NewFrame(); // @suppress("Invalid arguments")
+          ImGui_ImplGlfw_NewFrame(); // @suppress("Invalid arguments")
           ImGui::NewFrame();
 
           io.FontGlobalScale = font_scale;
@@ -145,6 +196,7 @@ int main(int, char**)
           if (ImGui::IsKeyPressed(ImGuiKey_B)) showin.flip(WIN_DEBUG);
           if (ImGui::IsKeyPressed(ImGuiKey_C)) showin.flip(WIN_CONTROL);
           if (ImGui::IsKeyPressed(ImGuiKey_D)) K3B->dump();
+          if (ImGui::IsKeyPressed(ImGuiKey_H)) histogramode = !histogramode;
           if (ImGui::IsKeyPressed(ImGuiKey_Q)) quit = true;
           if (ImGui::IsKeyPressed(ImGuiKey_R))
           {
@@ -160,10 +212,10 @@ int main(int, char**)
           {
                uloop++;
                //Proc->connect();
-               Proc->connect("cpufreq", "/proc/cpuinfo", "cpu MHz");
                Proc->get_sysinfo("totalmem", "freemem", "uptime", "procs");
                Proc->get_statvfs("totalspace", "freespace");
                Proc->processor("cpunumber");
+               Proc->connect("cpufreq", "/proc/cpuinfo", "cpu MHz");
                Proc->connect("procstat", "/proc/stat");
                Proc->connect("procloadavg", "/proc/loadavg");
                //unsigned int cpufreq0 = Proc->get_cpufreq_stats(1);
@@ -214,15 +266,31 @@ int main(int, char**)
           ImGui::SameLine();
           if (ImGui::SmallButton("[q]uit")) quit = true;
 
-          plotBuffer(K3B->get("uptime"), "system uptime", "ssb");
-          plotBuffer(K3B->get("procs"), "total processes");
-          plotBuffer(K3B->get("loadavg3"), "running processes");
-          plotBuffer(K3B->get("cpunumber"), "current processor");
-          plotBuffer(K3B->get("cpufreq"), "cpu frequence", "MHz");
-          plotBuffer(K3B->get("appfreq"), "imgui frequence", "Hz");
-          plotBuffer(K3B->get("upfreq"), "app frequence", "Hz");
-          plotBuffer(K3B->get("freemem"), "free memory", "%");
-          plotBuffer(K3B->get("freespace"), "free storage", "%");
+          if (histogramode)
+          {
+               plotHistogram(K3B->get("uptime"), "uptime", "ssb");
+               plotHistogram(K3B->get("procs"), "total processes");
+               plotHistogram(K3B->get("loadavg3"), "running processes");
+               plotHistogram(K3B->get("cpunumber"), "current processor");
+               plotHistogram(K3B->get("cpufreq"), "cpu frequence", "MHz");
+               plotHistogram(K3B->get("appfreq"), "imgui frequence", "Hz");
+               plotHistogram(K3B->get("upfreq"), "app frequence", "Hz");
+               plotHistogram(K3B->get("freemem"), "free memory", "%");
+               plotHistogram(K3B->get("freespace"), "free storage", "%");
+          }
+          else
+          {
+               plotHistory(K3B->get("uptime"), "uptime", "ssb");
+               plotHistory(K3B->get("procs"), "total processes");
+               plotHistory(K3B->get("loadavg3"), "running processes");
+               plotHistory(K3B->get("cpunumber"), "current processor");
+               plotHistory(K3B->get("cpufreq"), "cpu frequence", "MHz");
+               plotHistory(K3B->get("appfreq"), "imgui frequence", "Hz");
+               plotHistory(K3B->get("upfreq"), "app frequence", "Hz");
+               plotHistory(K3B->get("freemem"), "free memory", "%");
+               plotHistory(K3B->get("freespace"), "free storage", "%");
+          }
+
 
           ImGui::End();
           
@@ -299,7 +367,7 @@ int main(int, char**)
           //glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
           glClear(GL_COLOR_BUFFER_BIT);
 
-          ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+          ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData()); // @suppress("Invalid arguments")
 
           glfwMakeContextCurrent(window);
           glfwSwapBuffers(window);
@@ -313,8 +381,8 @@ int main(int, char**)
      delete K3B;
      //delete sinfo_version;
 
-     ImGui_ImplOpenGL2_Shutdown();
-     ImGui_ImplGlfw_Shutdown();
+     ImGui_ImplOpenGL2_Shutdown(); // @suppress("Invalid arguments")
+     ImGui_ImplGlfw_Shutdown(); // @suppress("Invalid arguments")
      ImGui::DestroyContext();
 
      glfwDestroyWindow(window);

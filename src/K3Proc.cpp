@@ -405,7 +405,7 @@ double K3Proc::getCPUUsage() {
      return cpuUsage;
 }
 
-
+/*
 unsigned int K3Proc::get_cpufreq_stats(unsigned int processor_number)
 {
      //unsigned int ncpu = cpufreq_get_num_cpus();
@@ -421,3 +421,4 @@ unsigned int K3Proc::get_cpufreq_stats(unsigned int processor_number)
      //cpufreq_exit();
      return int(frequence);
 }
+*/

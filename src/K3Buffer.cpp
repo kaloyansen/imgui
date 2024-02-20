@@ -52,11 +52,58 @@ std::vector<float>* K3Buffer::get(const char* name)
      return this->get(name);
 }
 
-void K3Buffer::fill(const char*name, float value)
+void K3Buffer::fill(const char* name, float value)
 {
      std::vector<float>* fector = this->get(name);
      fector->push_back(value);
      if (fector->size() > this->buffer_size_max) fector->erase(fector->begin());
+}
+
+/*
+std::vector<float> K3Buffer::histogram(const std::vector<float>& data, int num_bins)
+{
+	float min_val = *std::min_element(data.begin(), data.end());
+	float max_val = *std::max_element(data.begin(), data.end());
+	float bin_width = (max_val - min_val) / num_bins;
+	std::vector<float> histo(num_bins, 0);
+
+	for (float value : data)
+	{
+		int bin_index = (int)((value - min_val) / bin_width);
+		float old_value = histo[bin_index];
+		if (bin_index >= 0 && bin_index < num_bins) histo[bin_index] = old_value + 1;
+	}
+
+	return histo;
+}
+*/
+
+void K3Buffer::calcule(const char* name, const int binum,
+                       std::vector<float>* histogram,
+                       float* hmin, float* hmax, float* bmin, float* bmax, float* cur)
+{
+     std::vector<float>* fector = this->get(name);
+     //this->process(fector, bmin, bmax);
+     *bmin = *std::min_element(fector->begin(), fector->end());
+     *bmax = *std::max_element(fector->begin(), fector->end());
+     *cur = fector->back();
+
+
+     float bin_width = (*bmax - *bmin) / binum;
+
+
+     for (float value : *fector)
+     {
+          int bin_index = (int)((value - *bmin) / bin_width);
+          if (bin_index >= 0 && bin_index < binum)
+          {
+               float old_value = (*fector)[bin_index];
+               (*fector)[bin_index] = old_value + 1;
+          }
+     }
+
+     *hmin = *std::min_element(histogram->begin(), histogram->end());
+     *hmax = *std::max_element(histogram->begin(), histogram->end());
 }
 
 void K3Buffer::process(std::vector<float>* fector, float* min, float* max)
