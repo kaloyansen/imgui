@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <cstdarg>
+#include <cmath>
 #include <algorithm>
 
 class K3Buffer {
@@ -14,17 +15,17 @@ private:
      void appends(const char*);
      void reset(std::vector<float>*);
      void dump(std::vector<float>*);
-     float min(std::vector<float>*);
-     float max(std::vector<float>*);
+     void statistique(std::vector<float>, int, float, float,
+                      float*, float*);
 
 public:
      K3Buffer(size_t);
      ~K3Buffer();
 
-//     std::vector<float> histogram(const std::vector<float>&, int);
-     
-     std::vector<float>* get(const char*);
      void info(float, const char*);
+     std::vector<float>* get(const char*);
+     float min(std::vector<float>*);
+     float max(std::vector<float>*);
 
      void reset();
      void dump();
@@ -32,7 +33,7 @@ public:
      void remove(const char*);
      void fill(const char*, float);
      void process(std::vector<float>*, float*, float*);
-     void calcule(const char*, const int, std::vector<float>*, float*, float*, float*, float*, float*);
+     void calcule(const char*, std::vector<float>*, float*, float*, float*, float*, float*, float*, float*);
 };
 
 #endif

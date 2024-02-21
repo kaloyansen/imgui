@@ -88,38 +88,66 @@ float K3Buffer::max(std::vector<float>* fector)
      return *std::max_element(fector->begin(), fector->end());
 }
 
-void K3Buffer::calcule(const char* name, const int binum,
-                       std::vector<float>* histogram,
-                       float* hmin, float* hmax, float* bmin, float* bmax, float* cur)
+void K3Buffer::statistique(std::vector<float> histogram,
+                           int N, float bmin, float bmax,
+                           float* m, float* d)
+{
+
+     // N is the number of measurements with values in the range [bmin; nmax]
+     int n = histogram.size(); // the number of histogram bins
+     float b = (bmax - bmin) / n; // constant histogram bin width 
+     float W = 0.0f; // sum of weights
+     float S = 0.0f; // sum of squared differences
+
+     for (int i = 0; i < n; i++)
+     {
+          int x = histogram[i]; // bin count
+          float c = b * (1. / 2 + i) + bmin; // bin center
+          float w = x * c; // bin weight
+          W += w;
+     }
+
+     *m = W / N; // calculated mean
+
+     for (int i = 0; i < n; i++)
+     {
+          int x = histogram[i];
+          float c = b * (1. / 2 + i) + bmin;
+          float s = (c - *m) * (c - *m); // the squared difference
+          S += x * s;
+     }
+
+     float v = S / N; // calculated variation
+     *d = std::sqrt(v); // calculated standard deviation     
+}
+
+void K3Buffer::calcule(const char* name, std::vector<float>* histogram,
+                       float* hmin, float* hmax, float* hmean, float* hstdev,
+                       float* bmin, float* bmax, float* cur)
 {
      std::vector<float>* fector = this->get(name);
      *bmin = this->min(fector);//*std::min_element(fector->begin(), fector->end());
      *bmax = this->max(fector);//*std::max_element(fector->begin(), fector->end());
      *cur = fector->back();
+     float buff_size = fector->size();
 
-     float bin_width = (*bmax - *bmin) / binum;
+     float hist_size = histogram->size();
+     float bin_width = (*bmax - *bmin) / hist_size;
 
-     for (size_t i = 0; i < fector->size(); i++)
+     for (size_t i = 0; i < buff_size; i++)
      {
           float value = (*fector)[i];
           int bin_index = (int)((value - *bmin) / bin_width);
-          if (bin_index >= 0 && bin_index < binum)
+          if (bin_index >= 0 && bin_index < hist_size)
           {
                float old_value = (*histogram)[bin_index];
                (*histogram)[bin_index] = old_value + 1;
           }
      }
 
+     this->statistique(*histogram, buff_size, *bmin, *bmax, hmean, hstdev);
      *hmin = this->min(histogram);
      *hmax = this->max(histogram);
-}
-
-void K3Buffer::process(std::vector<float>* fector, float* min, float* max)
-{
-     auto amin = min_element(fector->begin(), fector->end());
-     auto amax = max_element(fector->begin(), fector->end());
-     *min = float(*amin);
-     *max = float(*amax);
 }
 
 void K3Buffer::reset(std::vector<float>* fector)
@@ -155,3 +183,15 @@ K3Buffer::~K3Buffer()
           delete pair.second;
      }
 }
+
+
+/*
+void K3Buffer::process(std::vector<float>* fector, float* min, float* max)
+{
+     auto amin = min_element(fector->begin(), fector->end());
+     auto amax = max_element(fector->begin(), fector->end());
+     *min = float(*amin);
+     *max = float(*amax);
+}
+
+*/

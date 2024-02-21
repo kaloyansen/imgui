@@ -24,7 +24,7 @@
 #define XVIEW 999
 #define YVIEW 666
 #define BUFFER_SIZE 600
-#define HISTOGRAM_SIZE 60
+#define HISTOGRAM_SIZE 100
 #define DEBUG true
 #define VERSION "0.0.3"
 #define WIN_ABOUT 0
@@ -44,32 +44,29 @@ void plotHistogram(K3Buffer* objbuf, const char* name,
                    const char* title = "", const char* siunit = "")
 {
      std::vector<float> hist(HISTOGRAM_SIZE, 0);
-     float hmin, hmax, bmin, bmax, cur;
-     objbuf->calcule(name, HISTOGRAM_SIZE, &hist, &hmin, &hmax, &bmin, &bmax, &cur);     
+     float hmin, hmax, hmean, hstdev, bmin, bmax, cur;
+     objbuf->calcule(name, &hist, &hmin, &hmax, &hmean, &hstdev, &bmin, &bmax, &cur);
      hmax = *std::max_element(hist.begin(), hist.end());
      
      char overlay[100];
-     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, bmin, cur, bmax, siunit);
-     ImGui::PlotHistogram("", hist.data(), HISTOGRAM_SIZE, 0, overlay, 0, hmax, ImVec2(screen_width - 16, screen_height / 11));
+     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, bmin, hmean, hstdev, siunit);
+     ImGui::PlotHistogram("", hist.data(), HISTOGRAM_SIZE, 0, overlay, hmin, hmax, ImVec2(screen_width - 16, screen_height / 11));
 }
 
-void plotHistory(std::vector<float>* buffer, const char* title = "", const char* siunit = "", int size = BUFFER_SIZE)
+void plotHistory(K3Buffer* objbuf, const char* name,
+                 const char* title = "", const char* siunit = "")
 {
-     float last = buffer->back();
+     std::vector<float>* fector = objbuf->get(name);
+
+     float* duffer = fector->data();
+     float min = objbuf->min(fector);
+     float max = objbuf->max(fector);
+     float cur = fector->back();
+     size_t size = fector->size();
+
      char overlay[100];
-     float min, max;
-     float* pmin = &min;
-     float* pmax = &max;
-
-     K3Buffer delme(0);
-     delme.process(buffer, pmin, pmax);
-
-     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min, last, max, siunit);
-
-     float* cuffer = buffer->data();
-     //static int sizec = IM_ARRAYSIZE(cuffer);
-
-     ImGui::PlotLines("", cuffer, size, 0, overlay, min, max, ImVec2(screen_width - 16, screen_height / 11));
+     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min, cur, max, siunit);
+     ImGui::PlotLines("", duffer, size, 0, overlay, min, max, ImVec2(screen_width - 16, screen_height / 11));
 }
 
 //
@@ -229,15 +226,15 @@ int main(int, char**)
           }
           else
           {
-               plotHistory(K3B->get("uptime"), "uptime", "ssb");
-               plotHistory(K3B->get("procs"), "total processes");
-               plotHistory(K3B->get("loadavg3"), "running processes");
-               plotHistory(K3B->get("cpunumber"), "current processor");
-               plotHistory(K3B->get("cpufreq"), "cpu frequence", "MHz");
-               plotHistory(K3B->get("appfreq"), "imgui frequence", "Hz");
-               plotHistory(K3B->get("upfreq"), "app frequence", "Hz");
-               plotHistory(K3B->get("freemem"), "free memory", "%");
-               plotHistory(K3B->get("freespace"), "free storage", "%");
+               plotHistory(K3B, "uptime", "uptime", "ssb");
+               plotHistory(K3B, "procs", "total processes");
+               plotHistory(K3B, "loadavg3", "running processes");
+               plotHistory(K3B, "cpunumber", "current processor");
+               plotHistory(K3B, "cpufreq", "cpu frequence", "MHz");
+               plotHistory(K3B, "appfreq", "imgui frequence", "Hz");
+               plotHistory(K3B, "upfreq", "app frequence", "Hz");
+               plotHistory(K3B, "freemem", "free memory", "%");
+               plotHistory(K3B,  "freespace", "free storage", "%");
           }
 
 
