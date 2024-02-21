@@ -14,6 +14,8 @@ private:
      void appends(const char*);
      void reset(std::vector<float>*);
      void dump(std::vector<float>*);
+     float min(std::vector<float>*);
+     float max(std::vector<float>*);
 
 public:
      K3Buffer(size_t);

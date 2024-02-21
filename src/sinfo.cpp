@@ -23,7 +23,8 @@
 #endif
 #define XVIEW 999
 #define YVIEW 666
-#define BUFSIZE 600
+#define BUFFER_SIZE 600
+#define HISTOGRAM_SIZE 60
 #define DEBUG true
 #define VERSION "0.0.3"
 #define WIN_ABOUT 0
@@ -39,55 +40,20 @@ static void glfw_error_callback(int error, const char* description)
      fprintf(stderr, "glfw %d %s\n", error, description);
 }
 
-void plotHistogram1(K3Buffer* objbuf, const char* name,
-                    const char* title = "", const char* siunit = "")
+void plotHistogram(K3Buffer* objbuf, const char* name,
+                   const char* title = "", const char* siunit = "")
 {
-     const int binum = 100;
-
-     std::vector<float> hist(binum, 0);
+     std::vector<float> hist(HISTOGRAM_SIZE, 0);
      float hmin, hmax, bmin, bmax, cur;
-     objbuf->calcule(name, binum, &hist, &hmin, &hmax, &bmin, &bmax, &cur);     
+     objbuf->calcule(name, HISTOGRAM_SIZE, &hist, &hmin, &hmax, &bmin, &bmax, &cur);     
      hmax = *std::max_element(hist.begin(), hist.end());
      
      char overlay[100];
      sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, bmin, cur, bmax, siunit);
-     ImGui::PlotHistogram("", hist.data(), binum, 0, overlay, 0, hmax, ImVec2(screen_width - 16, screen_height / 11));
+     ImGui::PlotHistogram("", hist.data(), HISTOGRAM_SIZE, 0, overlay, 0, hmax, ImVec2(screen_width - 16, screen_height / 11));
 }
 
-
-void plotHistogram(std::vector<float>* buffer, const char* title = "",
-                   const char* siunit = "", int size = BUFSIZE)
-{
-     const int num_bins = 100;
-     float last_val = buffer->back();
-     float min_val = *std::min_element(buffer->begin(), buffer->end());
-     float max_val = *std::max_element(buffer->begin(), buffer->end());
-     float bin_width = (max_val - min_val) / num_bins;
-
-     std::vector<float> fector(num_bins, 0);
-     
-     for (float value : *buffer)
-     {
-          int bin_index = (int)((value - min_val) / bin_width);
-          if (bin_index >= 0 && bin_index < num_bins)
-          {
-               float old_value = fector[bin_index];
-               fector[bin_index] = old_value + 1;
-          }
-     }
-
-     float min_hist = *std::min_element(fector.begin(), fector.end());
-     float max_hist = *std::max_element(fector.begin(), fector.end());
-
-     char overlay[100];
-     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min_val, last_val, max_val, siunit);
-
-     ImGui::PlotHistogram("", fector.data(), num_bins, 0, overlay, min_hist, max_hist, ImVec2(screen_width - 16, screen_height / 11));
-
-}
-
-
-void plotHistory(std::vector<float>* buffer, const char* title = "", const char* siunit = "", int size = BUFSIZE)
+void plotHistory(std::vector<float>* buffer, const char* title = "", const char* siunit = "", int size = BUFFER_SIZE)
 {
      float last = buffer->back();
      char overlay[100];
@@ -105,23 +71,6 @@ void plotHistory(std::vector<float>* buffer, const char* title = "", const char*
 
      ImGui::PlotLines("", cuffer, size, 0, overlay, min, max, ImVec2(screen_width - 16, screen_height / 11));
 }
-
-
-void bufferMonitor(float buffer[], int size,
-                   const char* title = "", const char* unit = "")
-{
-     float last = buffer[size - 1];
-     char overlay[100];
-
-     sprintf(overlay, "%7.1f %s", last, unit);
-
-     ImGui::PlotLines("", buffer, size, size, title);
-     ImGui::SameLine();
-     ImGui::ProgressBar(last, ImVec2(333.0f, 0.0f), overlay);
-}
-
-
-
 
 //
 // Main code
@@ -157,7 +106,7 @@ int main(int, char**)
      ImGui_ImplGlfw_InitForOpenGL(window, true); // @suppress("Invalid arguments")
      ImGui_ImplOpenGL2_Init(); // @suppress("Invalid arguments")
 
-     static K3Buffer* K3B = new K3Buffer(BUFSIZE);
+     static K3Buffer* K3B = new K3Buffer(BUFFER_SIZE);
      static K3Proc* Proc = new K3Proc();
      static K3Key showin(3);
      static bool histogramode = false;          
@@ -221,15 +170,15 @@ int main(int, char**)
                //unsigned int cpufreq0 = Proc->get_cpufreq_stats(1);
                //glfw_error_callback(cpufreq0, "\n");
 
-               if (uloop < BUFSIZE) status = "load";
-               else if (uloop == BUFSIZE) status = "done";
+               if (uloop < BUFFER_SIZE) status = "load";
+               else if (uloop == BUFFER_SIZE) status = "done";
                else status = "run";
 
                if (strcmp("done", status) == 0) delay = 6;
                float appfreq = 1.0f / io.DeltaTime;
                float upfreq = appfreq / delay;
 
-               buftime = float(BUFSIZE) / upfreq;
+               buftime = float(BUFFER_SIZE) / upfreq;
                               
                proci = Proc->get("procloadavg")->valeur[3];
                procimax = proci > procimax ? proci : procimax;
@@ -268,15 +217,15 @@ int main(int, char**)
 
           if (histogramode)
           {
-               plotHistogram(K3B->get("uptime"), "uptime", "ssb");
-               plotHistogram(K3B->get("procs"), "total processes");
-               plotHistogram(K3B->get("loadavg3"), "running processes");
-               plotHistogram(K3B->get("cpunumber"), "current processor");
-               plotHistogram(K3B->get("cpufreq"), "cpu frequence", "MHz");
-               plotHistogram(K3B->get("appfreq"), "imgui frequence", "Hz");
-               plotHistogram(K3B->get("upfreq"), "app frequence", "Hz");
-               plotHistogram(K3B->get("freemem"), "free memory", "%");
-               plotHistogram(K3B->get("freespace"), "free storage", "%");
+               plotHistogram(K3B, "uptime", "uptime", "ssb");
+               plotHistogram(K3B, "procs", "total processes");
+               plotHistogram(K3B, "loadavg3", "running processes");
+               plotHistogram(K3B, "cpunumber", "current processor");
+               plotHistogram(K3B, "cpufreq", "cpu frequence", "MHz");
+               plotHistogram(K3B, "appfreq", "imgui frequence", "Hz");
+               plotHistogram(K3B, "upfreq", "app frequence", "Hz");
+               plotHistogram(K3B, "freemem", "free memory", "%");
+               plotHistogram(K3B, "freespace", "free storage", "%");
           }
           else
           {
@@ -390,3 +339,53 @@ int main(int, char**)
 
      return 0;
 }
+
+
+/*
+void oldPlotHistogram(std::vector<float>* buffer, const char* title = "",
+                      const char* siunit = "", int size = BUFFER_SIZE)
+{
+     float last_val = buffer->back();
+     float min_val = *std::min_element(buffer->begin(), buffer->end());
+     float max_val = *std::max_element(buffer->begin(), buffer->end());
+     float bin_width = (max_val - min_val) / HISTOGRAM_SIZE;
+
+     std::vector<float> fector(HISTOGRAM_SIZE, 0);
+     
+     for (float value : *buffer)
+     {
+          int bin_index = (int)((value - min_val) / bin_width);
+          if (bin_index >= 0 && bin_index < HISTOGRAM_SIZE)
+          {
+               float old_value = fector[bin_index];
+               fector[bin_index] = old_value + 1;
+          }
+     }
+
+     float min_hist = *std::min_element(fector.begin(), fector.end());
+     float max_hist = *std::max_element(fector.begin(), fector.end());
+
+     char overlay[100];
+     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min_val, last_val, max_val, siunit);
+
+     ImGui::PlotHistogram("", fector.data(), HISTOGRAM_SIZE, 0, overlay, min_hist, max_hist, ImVec2(screen_width - 16, screen_height / 11));
+
+}
+
+
+void bufferMonitor(float buffer[], int size,
+                   const char* title = "", const char* unit = "")
+{
+     float last = buffer[size - 1];
+     char overlay[100];
+
+     sprintf(overlay, "%7.1f %s", last, unit);
+
+     ImGui::PlotLines("", buffer, size, size, title);
+     ImGui::SameLine();
+     ImGui::ProgressBar(last, ImVec2(333.0f, 0.0f), overlay);
+}
+
+
+
+*/
