@@ -59,7 +59,6 @@ public:
      void get_sysinfo(const char*, const char*, const char*, const char *);
      void get_statvfs(const char*, const char*);
      const char* author(void);
-     //unsigned int get_cpufreq_stats(unsigned int);
 };
 
 #endif
