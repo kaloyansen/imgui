@@ -40,16 +40,21 @@ static void glfw_error_callback(int error, const char* description)
      fprintf(stderr, "glfw %d %s\n", error, description);
 }
 
+const char* overtext(const char* title, float var1, float var2, float var3, const char* sunit)
+{
+     static char ot[100];
+     snprintf(ot, sizeof(ot), "%20s %9.2f %9.2f %9.2f %5s", title, var1, var2, var3, sunit);
+     return ot;
+}
+
 void plotHistogram(K3Buffer* objbuf, const char* name,
                    const char* title = "", const char* siunit = "")
 {
      std::vector<float> hist(HISTOGRAM_SIZE, 0);
      float hmin, hmax, hmean, hstdev, bmin, bmax, cur;
      objbuf->calcule(name, &hist, &hmin, &hmax, &hmean, &hstdev, &bmin, &bmax, &cur);
-     hmax = *std::max_element(hist.begin(), hist.end());
      
-     char overlay[100];
-     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, bmin, hmean, hstdev, siunit);
+     const char* overlay = overtext(title, cur, hmean, hstdev, siunit);
      ImGui::PlotHistogram("", hist.data(), HISTOGRAM_SIZE, 0, overlay, hmin, hmax, ImVec2(screen_width - 16, screen_height / 11));
 }
 
@@ -64,8 +69,7 @@ void plotHistory(K3Buffer* objbuf, const char* name,
      float cur = fector->back();
      size_t size = fector->size();
 
-     char overlay[100];
-     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min, cur, max, siunit);
+     const char* overlay = overtext(title, cur, min, max, siunit);
      ImGui::PlotLines("", duffer, size, 0, overlay, min, max, ImVec2(screen_width - 16, screen_height / 11));
 }
 
@@ -110,6 +114,8 @@ int main(int, char**)
 
      static bool do_not_update_system_info = false;
      static bool quit = false;
+     static bool dump = false;
+     static bool reset = false;
 
      static int procimax = 0;
      static int proci;
@@ -141,16 +147,10 @@ int main(int, char**)
           if (ImGui::IsKeyPressed(ImGuiKey_A)) showin.flip(WIN_ABOUT);
           if (ImGui::IsKeyPressed(ImGuiKey_B)) showin.flip(WIN_DEBUG);
           if (ImGui::IsKeyPressed(ImGuiKey_C)) showin.flip(WIN_CONTROL);
-          if (ImGui::IsKeyPressed(ImGuiKey_D)) K3B->dump();
-          if (ImGui::IsKeyPressed(ImGuiKey_H)) histogramode = !histogramode;
+          if (ImGui::IsKeyPressed(ImGuiKey_D)) dump = true;
+          if (ImGui::IsKeyPressed(ImGuiKey_M)) histogramode = !histogramode;
           if (ImGui::IsKeyPressed(ImGuiKey_Q)) quit = true;
-          if (ImGui::IsKeyPressed(ImGuiKey_R))
-          {
-               K3B->reset();
-               uloop = 0;
-               delay = 1;
-               showin.hide();
-          }
+          if (ImGui::IsKeyPressed(ImGuiKey_R)) reset = true;
                
           delay = delay > 0 ? delay : 1;
           do_not_update_system_info = loop % delay;// ? true : false;
@@ -201,14 +201,23 @@ int main(int, char**)
           screen_height = viewport->WorkSize.y;
 
           bool  boopen = true;
-//          bool* poopen = &boopen;
+          //bool* poopen = &boopen;
+          //ImGui::ProgressBar(float(proci) / procimax, ImVec2(0, 30), status);
+
 
           ImGui::Begin("main", &boopen, mainWindowFlags);
 
+          if (ImGui::SmallButton("[a]bout")) showin.show(WIN_ABOUT, true);
+          ImGui::SameLine();
+          if (ImGui::SmallButton("de[b]ug")) showin.show(WIN_DEBUG, true);
+          ImGui::SameLine();
           if (ImGui::SmallButton("[c]ontrol")) showin.show(WIN_CONTROL, true);
           ImGui::SameLine();
-          ImGui::ProgressBar(float(proci) / procimax, ImVec2(0, 30), status);
-
+          if (ImGui::SmallButton("[d]ump")) dump = true;
+          ImGui::SameLine();
+          if (ImGui::SmallButton("[m]ode")) histogramode = !histogramode;
+          ImGui::SameLine();
+          if (ImGui::SmallButton("[r]eset")) reset = true;
           ImGui::SameLine();
           if (ImGui::SmallButton("[q]uit")) quit = true;
 
@@ -251,21 +260,15 @@ int main(int, char**)
 
           if (showin.status(WIN_CONTROL) && ImGui::Begin("control", showin.is(WIN_CONTROL), controlWindowFlags))
           {
-               if (ImGui::Button("[a]bout")) showin.show(WIN_ABOUT, true);
-               ImGui::SameLine();
-               if (ImGui::Button("de[b]ug")) showin.show(WIN_DEBUG, true);
-               ImGui::SameLine();
+               //if (ImGui::Button("[a]bout")) showin.show(WIN_ABOUT, true);
+               //ImGui::SameLine();
+               //if (ImGui::Button("de[b]ug")) showin.show(WIN_DEBUG, true);
+               //ImGui::SameLine();
                if (ImGui::Button("[c]lose")) showin.hide();
-               ImGui::SameLine();
-               if (ImGui::Button("[d]ump")) K3B->dump();
-               ImGui::SameLine();
-               if (ImGui::Button("[r]eset"))
-               {
-                    K3B->reset();
-                    uloop = 0;
-                    delay = 1;
-                    showin.hide();
-               }
+               //ImGui::SameLine();
+               //if (ImGui::Button("[d]ump")) K3B->dump();
+               //ImGui::SameLine();
+               //if (ImGui::Button("[r]eset")) reset = true;
 
                ImGui::SeparatorText("");
                     
@@ -318,7 +321,25 @@ int main(int, char**)
           glfwMakeContextCurrent(window);
           glfwSwapBuffers(window);
 
-          if (quit) glfwSetWindowShouldClose(window, 1);
+          if (quit)
+          {
+               glfwSetWindowShouldClose(window, 1);
+          }
+          else if (dump)
+          {
+               K3B->dump();
+               dump = false;
+          }
+          else if (reset)
+          {
+               K3B->reset();
+               uloop = 0;
+               delay = 1;
+               showin.hide();
+               reset = false;
+          }
+          else
+          {}
      }
 
      // Cleanup
@@ -339,49 +360,49 @@ int main(int, char**)
 
 
 /*
-void oldPlotHistogram(std::vector<float>* buffer, const char* title = "",
-                      const char* siunit = "", int size = BUFFER_SIZE)
-{
-     float last_val = buffer->back();
-     float min_val = *std::min_element(buffer->begin(), buffer->end());
-     float max_val = *std::max_element(buffer->begin(), buffer->end());
-     float bin_width = (max_val - min_val) / HISTOGRAM_SIZE;
+  void oldPlotHistogram(std::vector<float>* buffer, const char* title = "",
+  const char* siunit = "", int size = BUFFER_SIZE)
+  {
+  float last_val = buffer->back();
+  float min_val = *std::min_element(buffer->begin(), buffer->end());
+  float max_val = *std::max_element(buffer->begin(), buffer->end());
+  float bin_width = (max_val - min_val) / HISTOGRAM_SIZE;
 
-     std::vector<float> fector(HISTOGRAM_SIZE, 0);
+  std::vector<float> fector(HISTOGRAM_SIZE, 0);
      
-     for (float value : *buffer)
-     {
-          int bin_index = (int)((value - min_val) / bin_width);
-          if (bin_index >= 0 && bin_index < HISTOGRAM_SIZE)
-          {
-               float old_value = fector[bin_index];
-               fector[bin_index] = old_value + 1;
-          }
-     }
+  for (float value : *buffer)
+  {
+  int bin_index = (int)((value - min_val) / bin_width);
+  if (bin_index >= 0 && bin_index < HISTOGRAM_SIZE)
+  {
+  float old_value = fector[bin_index];
+  fector[bin_index] = old_value + 1;
+  }
+  }
 
-     float min_hist = *std::min_element(fector.begin(), fector.end());
-     float max_hist = *std::max_element(fector.begin(), fector.end());
+  float min_hist = *std::min_element(fector.begin(), fector.end());
+  float max_hist = *std::max_element(fector.begin(), fector.end());
 
-     char overlay[100];
-     sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min_val, last_val, max_val, siunit);
+  char overlay[100];
+  sprintf(overlay, "%s %9.2f %9.2f %9.2f %s", title, min_val, last_val, max_val, siunit);
 
-     ImGui::PlotHistogram("", fector.data(), HISTOGRAM_SIZE, 0, overlay, min_hist, max_hist, ImVec2(screen_width - 16, screen_height / 11));
+  ImGui::PlotHistogram("", fector.data(), HISTOGRAM_SIZE, 0, overlay, min_hist, max_hist, ImVec2(screen_width - 16, screen_height / 11));
 
-}
+  }
 
 
-void bufferMonitor(float buffer[], int size,
-                   const char* title = "", const char* unit = "")
-{
-     float last = buffer[size - 1];
-     char overlay[100];
+  void bufferMonitor(float buffer[], int size,
+  const char* title = "", const char* unit = "")
+  {
+  float last = buffer[size - 1];
+  char overlay[100];
 
-     sprintf(overlay, "%7.1f %s", last, unit);
+  sprintf(overlay, "%7.1f %s", last, unit);
 
-     ImGui::PlotLines("", buffer, size, size, title);
-     ImGui::SameLine();
-     ImGui::ProgressBar(last, ImVec2(333.0f, 0.0f), overlay);
-}
+  ImGui::PlotLines("", buffer, size, size, title);
+  ImGui::SameLine();
+  ImGui::ProgressBar(last, ImVec2(333.0f, 0.0f), overlay);
+  }
 
 
 
