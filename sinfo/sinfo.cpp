@@ -31,7 +31,7 @@
 #define WIN_DEBUG 1
 #define WIN_CONTROL 2
 
-// ATTENTION: OUT OF DATE SINCE 2023
+///////////////////////////////////////////////////////////////////////////////////
 int screen_width;
 int screen_height;
 

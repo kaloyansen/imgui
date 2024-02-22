@@ -12,17 +12,16 @@
 # MSYS2:
 #   pacman -S --noconfirm --needed mingw-w64-x86_64-toolchain mingw-w64-x86_64-glfw
 #
-# ATTENTION: OUT OF DATE SINCE 2023
 
 #CXX = g++
 #CXX = clang++
 
 EXE = sinfo
 IMGUI_DIR = ..
-SRC_DIR = ../src
-INC_DIR = ../include
+SRC_DIR = $(IMGUI_DIR)/src
+INC_DIR = $(IMGUI_DIR)/include
 
-SOURCES = $(SRC_DIR)/$(EXE).cpp $(SRC_DIR)/K3Buffer.cpp $(SRC_DIR)/K3Proc.cpp $(SRC_DIR)/K3Key.cpp
+SOURCES = $(EXE).cpp $(SRC_DIR)/K3Buffer.cpp $(SRC_DIR)/K3Proc.cpp $(SRC_DIR)/K3Key.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl2.cpp
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
@@ -77,6 +76,9 @@ MESSAGE = $(EXE) built on $(ECHO_MESSAGE)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 %.o:$(IMGUI_DIR)/backends/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+%.o:$(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 all: $(EXE)
