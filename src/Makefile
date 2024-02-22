@@ -18,14 +18,16 @@
 
 EXE = sinfo
 IMGUI_DIR = ..
+SRC_DIR = .
+INC_DIR = ../include
 
-SOURCES = $(EXE).cpp K3Buffer.cpp K3Proc.cpp K3Key.cpp
+SOURCES = $(SRC_DIR)/$(EXE).cpp $(SRC_DIR)/K3Buffer.cpp $(SRC_DIR)/K3Proc.cpp $(SRC_DIR)/K3Key.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl2.cpp
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
 UNAME_S := $(shell uname -s)
 
-CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(IMGUI_DIR)/include
+CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(INC_DIR)
 CXXFLAGS += -g -Wall -Wformat
 LIBS =
 
