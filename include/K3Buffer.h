@@ -34,6 +34,7 @@ public:
      void fill(const char*, float);
      void process(std::vector<float>*, float*, float*);
      void calcule(const char*, std::vector<float>*, float*, float*, float*, float*, float*, float*, float*);
+     const char* overtext(const char*, float, float, float, const char*);
 };
 
 #endif

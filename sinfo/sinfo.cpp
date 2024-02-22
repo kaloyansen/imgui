@@ -4,17 +4,7 @@
 #include "K3Buffer.h"
 #include "K3Proc.h"
 #include "K3Key.h"
-#include <stdio.h>
-#include <stdlib.h>
-//#include <iostream>
-//#include <fstream>
-#include <sstream>
-#include <string>
-#include <vector>
-//#include <sys/sysinfo.h>
-//#include <sys/statvfs.h>
 #ifdef __APPLE__
-//#include <sys/sysinfo.h>
 #define GL_SILENCE_DEPRECATION
 #endif
 #include <GLFW/glfw3.h>
@@ -40,21 +30,15 @@ static void glfw_error_callback(int error, const char* description)
      fprintf(stderr, "glfw %d %s\n", error, description);
 }
 
-const char* overtext(const char* title, float var1, float var2, float var3, const char* sunit)
-{
-     static char ot[100];
-     snprintf(ot, sizeof(ot), "%20s %9.2f %9.2f %9.2f %5s", title, var1, var2, var3, sunit);
-     return ot;
-}
-
 void plotHistogram(K3Buffer* objbuf, const char* name,
                    const char* title = "", const char* siunit = "")
 {
      std::vector<float> hist(HISTOGRAM_SIZE, 0);
      float hmin, hmax, hmean, hstdev, bmin, bmax, cur;
+
      objbuf->calcule(name, &hist, &hmin, &hmax, &hmean, &hstdev, &bmin, &bmax, &cur);
-     
-     const char* overlay = overtext(title, cur, hmean, hstdev, siunit);
+     const char* overlay = objbuf->overtext(title, cur, hmean, hstdev, siunit);
+
      ImGui::PlotHistogram("", hist.data(), HISTOGRAM_SIZE, 0, overlay, hmin, hmax, ImVec2(screen_width - 16, screen_height / 11));
 }
 
@@ -62,14 +46,13 @@ void plotHistory(K3Buffer* objbuf, const char* name,
                  const char* title = "", const char* siunit = "")
 {
      std::vector<float>* fector = objbuf->get(name);
-
-     float* duffer = fector->data();
      float min = objbuf->min(fector);
      float max = objbuf->max(fector);
      float cur = fector->back();
      size_t size = fector->size();
-
-     const char* overlay = overtext(title, cur, min, max, siunit);
+     float* duffer = fector->data();
+     const char* overlay = objbuf->overtext(title, cur, min, max, siunit);
+     
      ImGui::PlotLines("", duffer, size, 0, overlay, min, max, ImVec2(screen_width - 16, screen_height / 11));
 }
 

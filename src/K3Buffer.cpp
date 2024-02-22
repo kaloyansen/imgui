@@ -175,6 +175,14 @@ void K3Buffer::reset()
      for (auto& pair : this->buffer) this->reset(pair.second);
 }
 
+const char* K3Buffer::overtext(const char* title, float var1, float var2, float var3, const char* sunit)
+{
+     static char ot[100];
+     snprintf(ot, sizeof(ot), "%20s %9.2f %9.2f %9.2f %5s", title, var1, var2, var3, sunit);
+     return ot;
+}
+
+
 K3Buffer::~K3Buffer()
 {
      for (auto& pair : this->buffer)
