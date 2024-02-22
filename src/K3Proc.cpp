@@ -61,6 +61,12 @@ void K3Proc::fill(const char* name, float value)
 }
 
 
+const char* K3Proc::author(void)
+{
+     const char* author = "Kaloyan Krastev";
+     return author;
+}
+
 const char* K3Proc::setext(const char* name, const char* value)
 {
      this->get(name)->text = value;

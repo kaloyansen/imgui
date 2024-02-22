@@ -37,7 +37,7 @@ void plotHistogram(K3Buffer* objbuf, const char* name,
      float hmin, hmax, hmean, hstdev, bmin, bmax, cur;
 
      objbuf->calcule(name, &hist, &hmin, &hmax, &hmean, &hstdev, &bmin, &bmax, &cur);
-     const char* overlay = objbuf->overtext(title, cur, hmean, hstdev, siunit);
+     const char* overlay = objbuf->overtext(title, cur, hmean, hstdev, siunit, bmin, bmax);
 
      ImGui::PlotHistogram("", hist.data(), HISTOGRAM_SIZE, 0, overlay, hmin, hmax, ImVec2(screen_width - 16, screen_height / 11));
 }
@@ -45,13 +45,14 @@ void plotHistogram(K3Buffer* objbuf, const char* name,
 void plotHistory(K3Buffer* objbuf, const char* name,
                  const char* title = "", const char* siunit = "")
 {
-     std::vector<float>* fector = objbuf->get(name);
+     ensamble* ens = objbuf->fisher(name);
+     std::vector<float>* fector = ens->buffer;//objbuf->get(name);
      float min = objbuf->min(fector);
      float max = objbuf->max(fector);
      float cur = fector->back();
      size_t size = fector->size();
      float* duffer = fector->data();
-     const char* overlay = objbuf->overtext(title, cur, min, max, siunit);
+     const char* overlay = objbuf->overtext(title, cur, min, max, siunit, ens->mini, ens->maxi);
      
      ImGui::PlotLines("", duffer, size, 0, overlay, min, max, ImVec2(screen_width - 16, screen_height / 11));
 }
@@ -274,7 +275,7 @@ int main(int, char**)
           {
                ImGui::Text("%s", sinfo_version);
                ImGui::SeparatorText("code");
-               ImGui::Text("Kaloyan Krastev");
+               ImGui::Text(Proc->author());
                ImGui::SeparatorText("powered by");
                ImGui::Text("ImGui");
                ImGui::SameLine();

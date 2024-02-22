@@ -24,59 +24,58 @@ void K3Buffer::append(const char* arg, ...)
 
 void K3Buffer::appends(const char* name)
 {
-     std::vector<float>* fector = new std::vector<float>;
-     this->buffer[name] = fector;
+     ensamble* ens = new ensamble;
+     ens->buffer = new std::vector<float>;
+     ens->mini = 1e10;
+     ens->maxi = 0;
+     
+     this->fish[name] = ens;
      this->info(1, name);
 }
 
 void K3Buffer::remove(const char* name)
 {
-     auto it = this->buffer.find(name);
-     if (it != this->buffer.end()) {
-          delete it->second;
-          this->buffer.erase(it);
-     }
+     // auto it = this->buffer.find(name);
+     // if (it != this->buffer.end()) {
+     //      delete it->second;
+     //      this->buffer.erase(it);
+     // }
      this->info(0, name);
 }
 
 
-std::vector<float>* K3Buffer::get(const char* name)
+ensamble* K3Buffer::fisher(const char* name)
 {
-     auto it = this->buffer.find(name);
-     if (it != this->buffer.end()) return it->second;
-
-     info(0, name);
-     info(0, " created\n");
+     auto it = this->fish.find(name);
+     if (it != this->fish.end()) return it->second;
 
      this->appends(name);
-     return this->get(name);
+     return this->fisher(name);
+}
+
+void K3Buffer::setminmax(ensamble* ens, float cur)
+{
+     float minrec = ens->mini;
+     float maxrec = ens->maxi;
+     ens->maxi = cur > maxrec ? cur : maxrec;
+     ens->mini = cur < minrec ? cur : minrec;
+}
+
+std::vector<float>* K3Buffer::get(const char* name)
+{
+     ensamble* ens = this->fisher(name);
+     return ens->buffer;
 }
 
 void K3Buffer::fill(const char* name, float value)
 {
-     std::vector<float>* fector = this->get(name);
+     ensamble* ens = this->fisher(name);
+     std::vector<float>* fector = ens->buffer;//this->get(name);
      fector->push_back(value);
      if (fector->size() > this->buffer_size_max) fector->erase(fector->begin());
+
+     this->setminmax(ens, value);
 }
-
-/*
-  std::vector<float> K3Buffer::histogram(const std::vector<float>& data, int num_bins)
-  {
-  float min_val = *std::min_element(data.begin(), data.end());
-  float max_val = *std::max_element(data.begin(), data.end());
-  float bin_width = (max_val - min_val) / num_bins;
-  std::vector<float> histo(num_bins, 0);
-
-  for (float value : data)
-  {
-  int bin_index = (int)((value - min_val) / bin_width);
-  float old_value = histo[bin_index];
-  if (bin_index >= 0 && bin_index < num_bins) histo[bin_index] = old_value + 1;
-  }
-
-  return histo;
-  }
-*/
 
 float K3Buffer::min(std::vector<float>* fector)
 {
@@ -126,8 +125,8 @@ void K3Buffer::calcule(const char* name, std::vector<float>* histogram,
                        float* bmin, float* bmax, float* cur)
 {
      std::vector<float>* fector = this->get(name);
-     *bmin = this->min(fector);//*std::min_element(fector->begin(), fector->end());
-     *bmax = this->max(fector);//*std::max_element(fector->begin(), fector->end());
+     *bmin = this->min(fector);
+     *bmax = this->max(fector);
      *cur = fector->back();
      float buff_size = fector->size();
 
@@ -163,43 +162,34 @@ void K3Buffer::dump(std::vector<float>* fector)
 
 void K3Buffer::dump()
 {
-     for (auto& pair : this->buffer)
+     for (auto& pair : this->fish)
      {
           this->info(3, pair.first);
-          this->dump(pair.second);
+          this->dump(pair.second->buffer);
      }
 }
 
 void K3Buffer::reset()
 {
-     for (auto& pair : this->buffer) this->reset(pair.second);
+     for (auto& pair : this->fish) this->reset(pair.second->buffer);
 }
 
-const char* K3Buffer::overtext(const char* title, float var1, float var2, float var3, const char* sunit)
+const char* K3Buffer::overtext(const char* title, float var1, float var2, float var3, const char* sunit, float var4, float var5)
 {
      static char ot[100];
-     snprintf(ot, sizeof(ot), "%20s %9.2f %9.2f %9.2f %5s", title, var1, var2, var3, sunit);
+     snprintf(ot, sizeof(ot), "%20s %9.2f %9.2f %9.2f %5s %9.2f %9.2f",
+              title, var1, var2, var3, sunit, var4, var5);
      return ot;
 }
 
 
 K3Buffer::~K3Buffer()
 {
-     for (auto& pair : this->buffer)
+     for (auto& pair : this->fish)
      {
           this->info(0, pair.first);
-          delete pair.second;
+          delete pair.second->buffer;
      }
 }
 
 
-/*
-void K3Buffer::process(std::vector<float>* fector, float* min, float* max)
-{
-     auto amin = min_element(fector->begin(), fector->end());
-     auto amax = max_element(fector->begin(), fector->end());
-     *min = float(*amin);
-     *max = float(*amax);
-}
-
-*/

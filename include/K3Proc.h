@@ -13,12 +13,14 @@
 //#include <cpufreq.h>
 
 /* use system calls and functions to access hardware performance information directly with no need to parse files is more efficient and provides better control over the data retrieval process */
-struct Freedom {
+struct Freedom
+{
      std::vector<float> valeur;
      const char* text;
 };
 
-class K3Proc {
+class K3Proc
+{
 private:
      size_t size;
      std::map<const char*, Freedom*> cage;
@@ -56,6 +58,7 @@ public:
      void processor(const char*);
      void get_sysinfo(const char*, const char*, const char*, const char *);
      void get_statvfs(const char*, const char*);
+     const char* author(void);
      //unsigned int get_cpufreq_stats(unsigned int);
 };
 

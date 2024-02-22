@@ -7,14 +7,24 @@
 #include <cmath>
 #include <algorithm>
 
-class K3Buffer {
+struct ensamble
+{
+     std::vector<float>* buffer;
+     float mini;
+     float maxi;
+};
+
+class K3Buffer
+{
 private:
      size_t buffer_size_max;
-     std::map<const char*, std::vector<float>*> buffer;
+     //std::map<const char*, std::vector<float>*> buffer;
+     std::map<const char*, ensamble*> fish;
 
      void appends(const char*);
      void reset(std::vector<float>*);
      void dump(std::vector<float>*);
+     void setminmax(ensamble*, float);
      void statistique(std::vector<float>, int, float, float,
                       float*, float*);
 
@@ -22,6 +32,7 @@ public:
      K3Buffer(size_t);
      ~K3Buffer();
 
+     ensamble* fisher(const char*);
      void info(float, const char*);
      std::vector<float>* get(const char*);
      float min(std::vector<float>*);
@@ -34,7 +45,7 @@ public:
      void fill(const char*, float);
      void process(std::vector<float>*, float*, float*);
      void calcule(const char*, std::vector<float>*, float*, float*, float*, float*, float*, float*, float*);
-     const char* overtext(const char*, float, float, float, const char*);
+     const char* overtext(const char*, float, float, float, const char*, float, float);
 };
 
 #endif
