@@ -9,16 +9,16 @@
 
 struct ensamble
 {
-     std::vector<float>* buffer;
-     float mini;
-     float maxi;
+     std::vector<float>* buffer; /*!< data */
+     float mini; /*!< absolute minimum */
+     float maxi; /*!< absolute maximum */
 };
 
+/*! this is a class to contro data buffers */
 class K3Buffer
 {
 private:
-     size_t buffer_size_max;
-     //std::map<const char*, std::vector<float>*> buffer;
+     size_t buffer_size_max; /*!< buffer size limit */
      std::map<const char*, ensamble*> fish;
 
      void appends(const char*);
