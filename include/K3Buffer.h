@@ -35,17 +35,16 @@ public:
 
      ensamble* fisher(const char*); /*!< ensamble getter */
      std::vector<float>* get(const char*); /*!< buffer getter */
-     float min(std::vector<float>*);
-     float max(std::vector<float>*);
+     float min(std::vector<float>*);  /*!< calculate buffer minimum */
+     float max(std::vector<float>*);  /*!< calculate buffer maximum */
 
-     void reset();
+     void reset(); /*!< reset all buffers */
      void dump();
      void append(const char*, ...); /*!< deprecated method */
      void remove(const char*); /*!< deprecated method */
      void fill(const char*, float); /*!< update buffer */
-     void process(std::vector<float>*, float*, float*);
      void build(const char*, std::vector<float>*, float*, float*, float*, float*, float*, float*, float*); /*!< create histogram */
-     const char* overtext(const char*, float, float, float, const char*, float, float);
+     const char* overtext(const char*, float, float, float, const char*, float, float); /*!< formatted text overlay */
 };
 
 #endif
