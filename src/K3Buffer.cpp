@@ -120,9 +120,9 @@ void K3Buffer::statistique(std::vector<float> histogram,
      *d = std::sqrt(v); // calculated standard deviation     
 }
 
-void K3Buffer::calcule(const char* name, std::vector<float>* histogram,
-                       float* hmin, float* hmax, float* hmean, float* hstdev,
-                       float* bmin, float* bmax, float* cur)
+void K3Buffer::build(const char* name, std::vector<float>* histogram,
+                     float* hmin, float* hmax, float* hmean, float* hstdev,
+                     float* bmin, float* bmax, float* cur)
 {
      std::vector<float>* fector = this->get(name);
      *bmin = this->min(fector);

@@ -36,7 +36,7 @@ void plotHistogram(K3Buffer* objbuf, const char* name,
      std::vector<float> hist(HISTOGRAM_SIZE, 0);
      float hmin, hmax, hmean, hstdev, bmin, bmax, cur;
 
-     objbuf->calcule(name, &hist, &hmin, &hmax, &hmean, &hstdev, &bmin, &bmax, &cur);
+     objbuf->build(name, &hist, &hmin, &hmax, &hmean, &hstdev, &bmin, &bmax, &cur);
      const char* overlay = objbuf->overtext(title, cur, hmean, hstdev, siunit, bmin, bmax);
 
      ImGui::PlotHistogram("", hist.data(), HISTOGRAM_SIZE, 0, overlay, hmin, hmax, ImVec2(screen_width - 16, screen_height / 11));
