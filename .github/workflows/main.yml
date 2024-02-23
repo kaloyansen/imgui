@@ -26,9 +26,9 @@ jobs:
       uses: mattnotmitt/doxygen-action@v1.1.0
       with:
         # Path to Doxyfile
-        doxyfile-path: "$GITHUB_WORKSPACE/dox/Doxyfile" # default is ./Doxyfile
+        doxyfile-path: "./dox/Doxyfile" # default is ./Doxyfile
         # Working directory
-        working-directory: "./dox" # default is .
+        working-directory: "." # default is .
     
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
@@ -36,4 +36,4 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         # Default Doxyfile build documentation to html directory. 
         # Change the directory if changes in Doxyfile
-        publish_dir: ./dox/html
+        publish_dir: ./html
