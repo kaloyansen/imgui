@@ -12,7 +12,10 @@
 #include <unistd.h>
 //#include <cpufreq.h>
 
-/* use system calls and functions to access hardware performance information directly with no need to parse files is more efficient and provides better control over the data retrieval process */
+/**
+ * use system calls and functions to access hardware performance information directly with no need to parse files is more efficient and provides better control over the data retrieval process
+ */
+
 struct Freedom
 {
      std::vector<float> valeur;

@@ -46,7 +46,7 @@ void plotHistory(K3Buffer* objbuf, const char* name,
                  const char* title = "", const char* siunit = "")
 {
      ensamble* ens = objbuf->fisher(name);
-     std::vector<float>* fector = ens->buffer;//objbuf->get(name);
+     std::vector<float>* fector = ens->buffer;
      float min = objbuf->min(fector);
      float max = objbuf->max(fector);
      float cur = fector->back();
@@ -202,8 +202,8 @@ int main(int, char**)
           if (ImGui::SmallButton("[m]ode")) histogramode = !histogramode;
           ImGui::SameLine();
           if (ImGui::SmallButton("[r]eset")) reset = true;
-          ImGui::SameLine();
-          if (ImGui::SmallButton("[q]uit")) quit = true;
+          //ImGui::SameLine();
+          //if (ImGui::SmallButton("[q]uit")) quit = true;
 
           if (histogramode)
           {
