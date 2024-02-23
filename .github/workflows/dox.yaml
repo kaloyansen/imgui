@@ -19,4 +19,4 @@ jobs:
     - name: Generate Documentation
       run: |
         cd $GITHUB_WORKSPACE/dox
-        doxygen $GITHUB_WORKSPACE/Doxyfile
+        doxygen $GITHUB_WORKSPACE/dox/Doxyfile
