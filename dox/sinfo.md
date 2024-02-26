@@ -1,7 +1,4 @@
-sinfo
-=====
 This is not an ImGui example. It is a compact system performance monitor for unix-like operating systems with a graphical user interface based on Dear ImGui.
-
 
 code documentation
 =====
