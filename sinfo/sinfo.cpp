@@ -277,15 +277,9 @@ int main(int, char**)
                ImGui::SeparatorText("code");
                ImGui::Text(Proc->author());
                ImGui::SeparatorText("powered by");
-               ImGui::Text("ImGui");
-               ImGui::SameLine();
-               ImGui::Text("GLFW");
-               ImGui::SameLine();
-               ImGui::Text("OpenGL");
-               ImGui::SameLine();
-               ImGui::Text("X11");
-               ImGui::SeparatorText("copyleft 2023-2024");
-               ImGui::Text("triplehelix-consulting.com");
+               ImGui::Text("ImGui, GLFW, OpenGL, X11");
+               //ImGui::SeparatorText("copyleft 2023-2024");
+               //ImGui::Text("triplehelix-consulting.com");
                ImGui::Separator();
                if (ImGui::Button("[a]ll right")) showin.show(WIN_ABOUT, false);
                ImGui::End();
