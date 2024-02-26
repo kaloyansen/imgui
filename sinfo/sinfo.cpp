@@ -207,25 +207,25 @@ int main(int, char**)
 
           if (histogramode)
           {
-               plotHistogram(K3B, "uptime", "uptime", "ssb");
                plotHistogram(K3B, "procs", "total processes");
                plotHistogram(K3B, "loadavg3", "running processes");
                plotHistogram(K3B, "cpunumber", "current processor");
                plotHistogram(K3B, "cpufreq", "cpu frequence", "MHz");
                plotHistogram(K3B, "appfreq", "imgui frequence", "Hz");
                plotHistogram(K3B, "upfreq", "app frequence", "Hz");
+               plotHistogram(K3B, "uptime", "uptime", "ssb");
                plotHistogram(K3B, "freemem", "free memory", "%");
                plotHistogram(K3B, "freespace", "free storage", "%");
           }
           else
           {
-               plotHistory(K3B, "uptime", "uptime", "ssb");
                plotHistory(K3B, "procs", "total processes");
                plotHistory(K3B, "loadavg3", "running processes");
                plotHistory(K3B, "cpunumber", "current processor");
                plotHistory(K3B, "cpufreq", "cpu frequence", "MHz");
                plotHistory(K3B, "appfreq", "imgui frequence", "Hz");
                plotHistory(K3B, "upfreq", "app frequence", "Hz");
+               plotHistory(K3B, "uptime", "uptime", "ssb");
                plotHistory(K3B, "freemem", "free memory", "%");
                plotHistory(K3B,  "freespace", "free storage", "%");
           }
