@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['license_0',['License',['../index.html#autotoc_md12',1,'']]]
+  ['quick_20setup_0',['quick setup',['../index.html#autotoc_md2',1,'']]]
 ];

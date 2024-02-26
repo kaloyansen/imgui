@@ -1,7 +1,5 @@
 var searchData=
 [
-  ['max_0',['max',['../classK3Buffer.html#a8356c38c1289487cdbd8d71225282acc',1,'K3Buffer']]],
-  ['maxi_1',['maxi',['../structensamble.html#a14c8d548120d7e3c976c0805d18c4ce6',1,'ensamble']]],
-  ['min_2',['min',['../classK3Buffer.html#a1c32ca2c597655a3ae4ab65c98a201ea',1,'K3Buffer']]],
-  ['mini_3',['mini',['../structensamble.html#a2aab1949689cbbf8b993ab6332ff19fd',1,'ensamble']]]
+  ['remove_0',['remove',['../classK3Buffer.html#a0833728e61f57c36554206c36cbc6dbd',1,'K3Buffer']]],
+  ['reset_1',['reset',['../classK3Buffer.html#a4a9f6b18be7ced332286997e8cb931d6',1,'K3Buffer']]]
 ];

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['overtext_0',['overtext',['../classK3Buffer.html#ae2ee66cc03624a68cf029c54ebcef43e',1,'K3Buffer']]]
+  ['setup_0',['quick setup',['../index.html#autotoc_md2',1,'']]],
+  ['sinfo_1',['sinfo',['../index.html',1,'']]]
 ];

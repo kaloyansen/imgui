@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['imgui_0',['Dear ImGui',['../index.html',1,'']]],
-  ['integration_1',['Integration',['../index.html#autotoc_md6',1,'']]],
-  ['it_20works_2',['How it works',['../index.html#autotoc_md3',1,'']]]
+  ['max_0',['max',['../classK3Buffer.html#a8356c38c1289487cdbd8d71225282acc',1,'K3Buffer']]],
+  ['maxi_1',['maxi',['../structensamble.html#a14c8d548120d7e3c976c0805d18c4ce6',1,'ensamble']]],
+  ['min_2',['min',['../classK3Buffer.html#a1c32ca2c597655a3ae4ab65c98a201ea',1,'K3Buffer']]],
+  ['mini_3',['mini',['../structensamble.html#a2aab1949689cbbf8b993ab6332ff19fd',1,'ensamble']]]
 ];

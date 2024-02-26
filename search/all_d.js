@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['pitch_0',['The Pitch',['../index.html#autotoc_md1',1,'']]]
+  ['text_0',['text',['../structFreedom.html#a07a12b948a9b565921133b4970decf98',1,'Freedom']]]
 ];
