@@ -2,7 +2,7 @@ This is not an ImGui example. It is a compact system performance monitor for uni
 
 code documentation
 =====
-github.io/kaloyansen/imgui 
+kaloyansen.github.io/imgui 
 
 dependencies
 =====
@@ -11,8 +11,7 @@ glfw
 quick setup
 =====
 
-git clone git@github.com:/kaloyansen/imgui.git
-cd imgui/sinfo && make && ./sinfo
+git clone git@github.com:/kaloyansen/imgui.git && cd imgui/sinfo && make && ./sinfo
 
 code
 =====
