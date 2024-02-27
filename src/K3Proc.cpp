@@ -23,11 +23,6 @@ void K3Proc::append(const char* arg, ...)
 
 void K3Proc::appends(const char* name)
 {
-     //Freedom* free = new Freedom;
-     //*(free->valeur) = 0;
-     //*(free->text) = "";
-
-
      this->cage[name] = new Freedom();
      this->size ++;
      this->info(1, name);
@@ -63,8 +58,7 @@ void K3Proc::fill(const char* name, float value)
 
 const char* K3Proc::author(void)
 {
-     const char* author = "Kaloyan Krastev";
-     return author;
+     return "Kaloyan Krastev";
 }
 
 const char* K3Proc::setext(const char* name, const char* value)
