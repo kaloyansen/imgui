@@ -1,6 +1,6 @@
 #ifndef K3BUFFER_H
 #define K3BUFFER_H
-#include <iostream>
+#include <stdio.h>
 #include <vector>
 #include <map>
 #include <cstdarg>
@@ -18,7 +18,7 @@ struct ensamble
 class K3Buffer
 {
 private:
-     size_t buffer_size_max; /*!< buffer size limit */
+     int buffer_size; /*!< buffer size limit */
      std::map<const char*, ensamble*> fish;
 
      void info(float, const char*); /*!< command-line output */
@@ -30,7 +30,7 @@ private:
                       float*, float*); /*!< calculate histogram mean and sigma */
 
 public:
-     K3Buffer(size_t);
+     K3Buffer(int);
      ~K3Buffer();
 
      ensamble* fisher(const char*); /*!< ensamble getter */

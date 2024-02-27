@@ -1,8 +1,8 @@
 #include "K3Buffer.h"
 
-K3Buffer::K3Buffer(size_t size)
+K3Buffer::K3Buffer(int size)
 {
-     this->buffer_size_max = size;
+     this->buffer_size = size;
 }
 
 void K3Buffer::info(float value, const char* description = "")
@@ -72,7 +72,8 @@ void K3Buffer::fill(const char* name, float value)
      ensamble* ens = this->fisher(name);
      std::vector<float>* fector = ens->buffer;//this->get(name);
      fector->push_back(value);
-     if (fector->size() > this->buffer_size_max) fector->erase(fector->begin());
+     int fize = fector->size();
+     if (fize > this->buffer_size) fector->erase(fector->begin());
 
      this->setminmax(ens, value);
 }
@@ -133,7 +134,7 @@ void K3Buffer::build(const char* name, std::vector<float>* histogram,
      float hist_size = histogram->size();
      float bin_width = (*bmax - *bmin) / hist_size;
 
-     for (size_t i = 0; i < buff_size; i++)
+     for (int i = 0; i < buff_size; i++)
      {
           float value = (*fector)[i];
           int bin_index = (int)((value - *bmin) / bin_width);
