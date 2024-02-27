@@ -7,7 +7,7 @@ K3Buffer::K3Buffer(size_t size)
 
 void K3Buffer::info(float value, const char* description = "")
 {
-     fprintf(stdout, "K3Buffer %f %s", value, description);
+     printf("K3Buffer %f %s", value, description);
 }
 
 void K3Buffer::append(const char* arg, ...)

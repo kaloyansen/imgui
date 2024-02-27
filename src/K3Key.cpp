@@ -2,10 +2,10 @@
 
 void K3Key::info(float x, const char* err = "") const
 {
-     fprintf(stdout, "K3Key %f %s", x, err);
+     printf("K3Key %f %s", x, err);
 }
 
-bool* K3Key::is(size_t index)
+bool* K3Key::is(int index)
 {
      if (this->out_of_range(index)) return nullptr;
 
@@ -13,21 +13,21 @@ bool* K3Key::is(size_t index)
      return (bool*)address;
 }
 
-bool K3Key::out_of_range(size_t index) const
+bool K3Key::out_of_range(int index) const
 {
-     if (index < this->bector.size()) return false;
+     if (index < this->bize) return false;
 
-     info(index, "out of control");
+     info(index, "out of range");
      return true;
 }
 
-bool K3Key::status(size_t index) const
+bool K3Key::status(int index) const
 {
      if (this->out_of_range(index)) return false;
      return this->bector[index];
 }
 
-void K3Key::flip(size_t index)
+void K3Key::flip(int index)
 {
      if (this->out_of_range(index)) return;
      this->show(index, !this->bector[index]);
@@ -38,16 +38,16 @@ void K3Key::hide(void)
      std::fill(this->bector.begin(), this->bector.end(), false);
 }
 
-void K3Key::show(size_t index, bool status)
+void K3Key::show(int index, bool status)
 {
      if (this->out_of_range(index)) return;
      this->hide();
      this->bector[index] = status;
 }
 
-void K3Key::print() const
+void K3Key::print(void) const
 {
-     for (std::vector<bool>::size_type i = 0; i < this->bector.size(); ++i)
+     for (int i = 0; i < this->bize; ++i)
           this->info(i, this->bector[i] ? "true" : "false");
 }
 

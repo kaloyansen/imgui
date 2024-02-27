@@ -1,24 +1,25 @@
 #ifndef K3KEY_H
 #define K3KEY_H
-#include <iostream>
+#include <stdio.h>
 #include <vector>
 
 class K3Key {
 private:
+     int bize;
      std::vector<bool> bector;
-     bool out_of_range(size_t) const;
+     bool out_of_range(int) const;
      void info(float, const char*) const;
 
 public:
-     K3Key(size_t size) : bector(size, false) {}
-     bool* is(size_t);
-     bool status(size_t) const;
+     K3Key(int size) : bector(size, false) { this->bize = size; }
+     bool* is(int);
+     bool status(int) const;
 
      void hide(void);
-     void show(size_t, bool);
-     void flip(size_t);
+     void show(int, bool);
+     void flip(int);
 
-     void print() const;
+     void print(void) const;
 };
 
 #endif

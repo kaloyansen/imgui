@@ -1,6 +1,5 @@
 #ifndef K3PROC_H
 #define K3PROC_H
-#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <map>
@@ -9,7 +8,7 @@
 #include <cstring>
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
-#include <unistd.h>
+//#include <unistd.h>
 //#include <cpufreq.h>
 
 struct Freedom

@@ -7,7 +7,7 @@ K3Proc::K3Proc()
 
 void K3Proc::info(float value, const char* description = "")
 {
-     fprintf(stdout, "K3Proc %f %s", value, description);
+     printf("K3Proc %f %s", value, description);
 }
 
 void K3Proc::append(const char* arg, ...)
