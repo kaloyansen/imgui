@@ -2,9 +2,6 @@
 
 int screen_width;
 int screen_height;
-
-//
-// Main code
 int main(int, char**)
 {
      glfwSetErrorCallback(glfw_error_callback);

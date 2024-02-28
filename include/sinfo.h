@@ -1,8 +1,5 @@
 #ifndef SINFO_H
 #define SINFO_H
-
-
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl2.h"
@@ -26,13 +23,10 @@
 #define WIN_DEBUG 1
 #define WIN_CONTROL 2
 
-///////////////////////////////////////////////////////////////////////////////////
 static void glfw_error_callback(int, const char*);
 static ImVec2 plain(void);
 static void draw(K3Buffer*, const char*, const char*, const char*, bool);
 static void plotHistogram(K3Buffer*, const char*, const char*, const char*);
 static void plotHistory(K3Buffer*, const char*, const char*, const char*);
-
-
 
 #endif
