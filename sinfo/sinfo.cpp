@@ -1,34 +1,7 @@
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl2.h"
-#include "K3Buffer.h"
-#include "K3Proc.h"
-#include "K3Key.h"
-#ifdef __APPLE__
-#define GL_SILENCE_DEPRECATION
-#endif
-#include <GLFW/glfw3.h>
-#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
-#pragma comment(lib, "legacy_stdio_definitions")
-#endif
-#define XVIEW 999
-#define YVIEW 666
-#define BUFFER_SIZE 600
-#define HISTOGRAM_SIZE 100
-#define DEBUG true
-#define VERSION "0.0.3"
-#define WIN_ABOUT 0
-#define WIN_DEBUG 1
-#define WIN_CONTROL 2
+#include "sinfo.h"
 
-///////////////////////////////////////////////////////////////////////////////////
 int screen_width;
 int screen_height;
-
-static void glfw_error_callback(int, const char*);
-static ImVec2 plain(void);
-static void plotHistogram(K3Buffer*, const char*, const char*, const char*);
-static void plotHistory(K3Buffer*, const char*, const char*, const char*);
 
 //
 // Main code
@@ -158,10 +131,6 @@ int main(int, char**)
           screen_height = viewport->WorkSize.y;
 
           bool  boopen = true;
-          //bool* poopen = &boopen;
-          //ImGui::ProgressBar(float(proci) / procimax, ImVec2(0, 30), status);
-
-
           ImGui::Begin("main", &boopen, mainWindowFlags);
 
           if (ImGui::SmallButton("[a]bout")) showin.show(WIN_ABOUT, true);
@@ -178,29 +147,31 @@ int main(int, char**)
           //ImGui::SameLine();
           //if (ImGui::SmallButton("[q]uit")) quit = true;
 
+          static bool histogram = true; 
+          static bool history = false; 
           if (histogramode)
           {
-               plotHistogram(K3B, "procs", "total processes", "");
-               plotHistogram(K3B, "loadavg3", "running processes", "");
-               plotHistogram(K3B, "cpunumber", "current processor", "");
-               plotHistogram(K3B, "cpufreq", "cpu frequence", "MHz");
-               plotHistogram(K3B, "appfreq", "imgui frequence", "Hz");
-               plotHistogram(K3B, "upfreq", "app frequence", "Hz");
-               plotHistogram(K3B, "uptime", "uptime", "ssb");
-               plotHistogram(K3B, "freemem", "free memory", "%");
-               plotHistogram(K3B, "freespace", "free storage", "%");
+               draw(K3B, "procs",     "total processes",   "", histogram);
+               draw(K3B, "loadavg3",  "running processes", "", histogram);
+               draw(K3B, "cpunumber", "current processor", "", histogram);
+               draw(K3B, "cpufreq",   "cpu frequence",  "MHz", history);
+               draw(K3B, "appfreq",   "imgui frequence", "Hz", history);
+               draw(K3B, "upfreq",    "app frequence",   "Hz", history);
+               draw(K3B, "uptime",    "uptime",         "ssb", histogram);
+               draw(K3B, "freemem",   "free memory",      "%", history);
+               draw(K3B, "freespace", "free storage",     "%", histogram);
           }
           else
           {
-               plotHistory(K3B, "procs", "total processes", "");
-               plotHistory(K3B, "loadavg3", "running processes", "");
-               plotHistory(K3B, "cpunumber", "current processor", "");
-               plotHistory(K3B, "cpufreq", "cpu frequence", "MHz");
-               plotHistory(K3B, "appfreq", "imgui frequence", "Hz");
-               plotHistory(K3B, "upfreq", "app frequence", "Hz");
-               plotHistory(K3B, "uptime", "uptime", "ssb");
-               plotHistory(K3B, "freemem", "free memory", "%");
-               plotHistory(K3B,  "freespace", "free storage", "%");
+               draw(K3B, "procs",     "total processes",   "", history);
+               draw(K3B, "loadavg3",  "running processes", "", history);
+               draw(K3B, "cpunumber", "current processor", "", history);
+               draw(K3B, "cpufreq",   "cpu frequence",  "MHz", histogram);
+               draw(K3B, "appfreq",   "imgui frequence", "Hz", histogram);
+               draw(K3B, "upfreq",    "app frequence",   "Hz", histogram);
+               draw(K3B, "uptime",    "uptime",         "ssb", history);
+               draw(K3B, "freemem",   "free memory",      "%", histogram);
+               draw(K3B, "freespace", "free storage",     "%", history);
           }
 
 
@@ -217,15 +188,7 @@ int main(int, char**)
 
           if (showin.status(WIN_CONTROL) && ImGui::Begin("control", showin.is(WIN_CONTROL), controlWindowFlags))
           {
-               //if (ImGui::Button("[a]bout")) showin.show(WIN_ABOUT, true);
-               //ImGui::SameLine();
-               //if (ImGui::Button("de[b]ug")) showin.show(WIN_DEBUG, true);
-               //ImGui::SameLine();
                if (ImGui::Button("[c]lose")) showin.hide();
-               //ImGui::SameLine();
-               //if (ImGui::Button("[d]ump")) K3B->dump();
-               //ImGui::SameLine();
-               //if (ImGui::Button("[r]eset")) reset = true;
 
                ImGui::SeparatorText("");
                     
@@ -251,8 +214,6 @@ int main(int, char**)
                ImGui::Text(Proc->author());
                ImGui::SeparatorText("powered by");
                ImGui::Text("ImGui, GLFW, OpenGL, X11");
-               //ImGui::SeparatorText("copyleft 2023-2024");
-               //ImGui::Text("triplehelix-consulting.com");
                ImGui::Separator();
                if (ImGui::Button("[a]ll right")) showin.show(WIN_ABOUT, false);
                ImGui::End();
@@ -297,7 +258,6 @@ int main(int, char**)
 
      delete Proc;
      delete K3B;
-     //delete sinfo_version;
 
      ImGui_ImplOpenGL2_Shutdown(); // @suppress("Invalid arguments")
      ImGui_ImplGlfw_Shutdown(); // @suppress("Invalid arguments")
@@ -318,6 +278,17 @@ static ImVec2 plain(void)
      ImVec2 p(*vjhbiyg - 16, *hjjhvgf / 11);
      return p;
 }
+
+static void draw(K3Buffer* objbuf, const char* name,
+                 const char* title, const char* siunit,
+                 bool mode)
+{
+     if (mode) plotHistogram(objbuf, name, title, siunit);
+     else plotHistory(objbuf, name, title, siunit);    
+
+}
+
+
 
 static void plotHistogram(K3Buffer* objbuf, const char* name,
                    const char* title = "", const char* siunit = "")
@@ -348,5 +319,5 @@ static void plotHistory(K3Buffer* objbuf, const char* name,
 
 static void glfw_error_callback(int error, const char* description)
 {
-     fprintf(stderr, "glfw %d %s\n", error, description);
+     printf("glfw %d %s\n", error, description);
 }
