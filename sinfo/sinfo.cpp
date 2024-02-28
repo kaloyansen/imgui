@@ -148,27 +148,27 @@ int main(int, char**)
           static bool history = false; 
           if (histogramode)
           {
-               draw(K3B, "procs",     "total processes",   "", histogram);
-               draw(K3B, "loadavg3",  "running processes", "", histogram);
-               draw(K3B, "cpunumber", "current processor", "", histogram);
-               draw(K3B, "cpufreq",   "cpu frequence",  "MHz", history);
-               draw(K3B, "appfreq",   "imgui frequence", "Hz", history);
-               draw(K3B, "upfreq",    "app frequence",   "Hz", history);
-               draw(K3B, "uptime",    "uptime",         "ssb", histogram);
-               draw(K3B, "freemem",   "free memory",      "%", history);
-               draw(K3B, "freespace", "free storage",     "%", histogram);
+               draw(K3B, "procs",     "total processes",   "",    histogram);
+               draw(K3B, "loadavg3",  "running processes", "",    histogram);
+               draw(K3B, "cpunumber", "current processor", "",    histogram);
+               draw(K3B, "cpufreq",   "cpu frequence",     "MHz", history);
+               draw(K3B, "appfreq",   "imgui frequence",   "Hz",  history);
+               draw(K3B, "upfreq",    "app frequence",     "Hz",  history);
+               draw(K3B, "uptime",    "uptime",            "ssb", histogram);
+               draw(K3B, "freemem",   "free memory",       "%",   history);
+               draw(K3B, "freespace", "free storage",      "%",   histogram);
           }
           else
           {
-               draw(K3B, "procs",     "total processes",   "", history);
-               draw(K3B, "loadavg3",  "running processes", "", history);
-               draw(K3B, "cpunumber", "current processor", "", history);
-               draw(K3B, "cpufreq",   "cpu frequence",  "MHz", histogram);
-               draw(K3B, "appfreq",   "imgui frequence", "Hz", histogram);
-               draw(K3B, "upfreq",    "app frequence",   "Hz", histogram);
-               draw(K3B, "uptime",    "uptime",         "ssb", history);
-               draw(K3B, "freemem",   "free memory",      "%", histogram);
-               draw(K3B, "freespace", "free storage",     "%", history);
+               draw(K3B, "procs",     "total processes",   "",    history);
+               draw(K3B, "loadavg3",  "running processes", "",    history);
+               draw(K3B, "cpunumber", "current processor", "",    history);
+               draw(K3B, "cpufreq",   "cpu frequence",     "MHz", histogram);
+               draw(K3B, "appfreq",   "imgui frequence",   "Hz",  histogram);
+               draw(K3B, "upfreq",    "app frequence",     "Hz",  histogram);
+               draw(K3B, "uptime",    "uptime",            "ssb", history);
+               draw(K3B, "freemem",   "free memory",       "%",   histogram);
+               draw(K3B, "freespace", "free storage",      "%",   history);
           }
 
 
