@@ -7,7 +7,7 @@ int main(int, char**)
      glfwSetErrorCallback(glfw_error_callback);
      if (!glfwInit()) return 1;
 
-     glfw_error_callback(-1, "this is not an error\n");
+     glfw_error_callback(-1, "this is a test\n");
 
      // Create window with graphics context
      char sinfo_version[33];
@@ -37,8 +37,8 @@ int main(int, char**)
      static K3Buffer* K3B = new K3Buffer(BUFFER_SIZE);
      static K3Proc* Proc = new K3Proc();
      static K3Key showin(3);
-     static bool histogramode = false;          
 
+     static bool histogramode = false;
      static bool do_not_update_system_info = false;
      static bool quit = false;
      static bool dump = false;
@@ -49,8 +49,10 @@ int main(int, char**)
      static int loop = 0;
      static int uloop = 0;
      static int delay = 1;
+
      static float buftime;
      static float font_scale = 2.5;
+
      static const char* status = "unknown";
 
      static ImGuiWindowFlags mainWindowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings |  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoScrollbar;
@@ -208,7 +210,7 @@ int main(int, char**)
           {
                ImGui::Text("%s", sinfo_version);
                ImGui::SeparatorText("code");
-               ImGui::Text(Proc->author());
+               ImGui::Text("%s", Proc->author());
                ImGui::SeparatorText("powered by");
                ImGui::Text("ImGui, GLFW, OpenGL, X11");
                ImGui::Separator();
