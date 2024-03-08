@@ -1,8 +1,15 @@
 #include "K3Buffer.h"
 
-K3Buffer::K3Buffer(int size)
+K3Buffer::~K3Buffer()
 {
-     this->buffer_size = size;
+     struct Feature* f = this->head;
+     while (f != nullptr)
+     {
+          this->info(0, f->name);
+          delete f->buffer;
+          this->info(0, "deleted\n");
+          f = f->next;
+     }
 }
 
 void K3Buffer::info(float value, const char* description = "")
@@ -10,50 +17,46 @@ void K3Buffer::info(float value, const char* description = "")
      printf("K3Buffer %f %s", value, description);
 }
 
-void K3Buffer::append(const char* arg, ...)
+struct Feature* K3Buffer::emerge(const char* name)
 {
-     va_list arglist;
-     const char* nextarg;
+     struct Feature* feature = new Feature;
+     feature->name = name;
+     feature->mini = +1e10;
+     feature->maxi = -1e10;
+     feature->buffer = new std::vector<float>;
+     feature->next = nullptr;
 
-     va_start(arglist, arg);
-     this->appends(arg);
-     while ((nextarg = va_arg(arglist, const char*)) != nullptr) this->appends(nextarg);
-     this->info(1, "\n");
-     va_end(arglist);
-}
+     struct Feature* f = this->head;
+     if (f != nullptr)
+     {
+          while (f->next != NULL) f = f->next;
+          f->next = feature;
+     }
+     else
+     {
+          this->head = feature;
+     }
 
-void K3Buffer::appends(const char* name)
-{
-     ensamble* ens = new ensamble;
-     ens->buffer = new std::vector<float>;
-     ens->mini = 1e10;
-     ens->maxi = 0;
-     
-     this->fish[name] = ens;
      this->info(1, name);
+     this->info(1, "created\n");
+     return feature;
 }
 
-void K3Buffer::remove(const char* name)
+struct Feature* K3Buffer::node(const char* name)
 {
-     // auto it = this->buffer.find(name);
-     // if (it != this->buffer.end()) {
-     //      delete it->second;
-     //      this->buffer.erase(it);
-     // }
-     this->info(0, name);
+     struct Feature* f = this->head;
+     int count = 0;
+     while (f != nullptr)
+     {
+          if (f->name == name) return f;
+          f = f->next;
+          count ++;
+     }
+
+     return this->emerge(name);
 }
 
-
-ensamble* K3Buffer::fisher(const char* name)
-{
-     auto it = this->fish.find(name);
-     if (it != this->fish.end()) return it->second;
-
-     this->appends(name);
-     return this->fisher(name);
-}
-
-void K3Buffer::setminmax(ensamble* ens, float cur)
+void K3Buffer::setminmax(struct Feature* ens, float cur)
 {
      float minrec = ens->mini;
      float maxrec = ens->maxi;
@@ -63,14 +66,14 @@ void K3Buffer::setminmax(ensamble* ens, float cur)
 
 std::vector<float>* K3Buffer::get(const char* name)
 {
-     ensamble* ens = this->fisher(name);
+     struct Feature* ens = this->node(name);
      return ens->buffer;
 }
 
 void K3Buffer::fill(const char* name, float value)
 {
-     ensamble* ens = this->fisher(name);
-     std::vector<float>* fector = ens->buffer;//this->get(name);
+     struct Feature* ens = this->node(name);
+     std::vector<float>* fector = ens->buffer;
      fector->push_back(value);
      int fize = fector->size();
      if (fize > this->buffer_size) fector->erase(fector->begin());
@@ -153,7 +156,6 @@ void K3Buffer::build(const char* name, std::vector<float>* histogram,
 void K3Buffer::reset(std::vector<float>* fector)
 {
      if (fector != nullptr) fector->clear();
-     //fector->assign(fector->size(), 0.0f);
 }
 
 void K3Buffer::dump(std::vector<float>* fector)
@@ -163,16 +165,23 @@ void K3Buffer::dump(std::vector<float>* fector)
 
 void K3Buffer::dump()
 {
-     for (auto& pair : this->fish)
+     struct Feature* node = this->head;
+     while (node != NULL)
      {
-          this->info(3, pair.first);
-          this->dump(pair.second->buffer);
+          this->info(3, node->name);
+          this->dump(node->buffer);
+          node = node->next;
      }
 }
 
 void K3Buffer::reset()
 {
-     for (auto& pair : this->fish) this->reset(pair.second->buffer);
+     struct Feature* node = this->head;
+     while (node != NULL)
+     {
+          this->reset(node->buffer);
+          node = node->next;
+     }
 }
 
 const char* K3Buffer::overtext(const char* title, float var1, float var2, float var3, const char* sunit, float var4, float var5)
@@ -182,15 +191,3 @@ const char* K3Buffer::overtext(const char* title, float var1, float var2, float 
               title, var1, var2, var3, sunit, var4, var5);
      return ot;
 }
-
-
-K3Buffer::~K3Buffer()
-{
-     for (auto& pair : this->fish)
-     {
-          this->info(0, pair.first);
-          delete pair.second->buffer;
-     }
-}
-
-

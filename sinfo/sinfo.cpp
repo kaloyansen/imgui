@@ -25,21 +25,21 @@ int main(int, char**)
      io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
      io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
 
+     ImGui::StyleColorsDark();
+     ImGui::StyleColorsLight();
      ImGui::StyleColorsClassic();
      //ImGuiStyle& style = ImGui::GetStyle();
-     //style.ScaleAllSizes(2);
-     //ImGui::StyleColorsLight();
 
      // Setup Platform/Renderer backends
      ImGui_ImplGlfw_InitForOpenGL(window, true); // @suppress("Invalid arguments")
      ImGui_ImplOpenGL2_Init(); // @suppress("Invalid arguments")
 
-     static K3Buffer* K3B = new K3Buffer(BUFFER_SIZE);
-     static K3Proc* Proc = new K3Proc();
+     static K3Buffer* Buffer = new K3Buffer(BUFFER_SIZE);
+     static K3System* System = new K3System();
      static K3Key showin(3);
 
      static bool histogramode = false;
-     static bool do_not_update_system_info = false;
+     static bool jump = false;
      static bool quit = false;
      static bool dump = false;
      static bool reset = false;
@@ -82,18 +82,18 @@ int main(int, char**)
           if (ImGui::IsKeyPressed(ImGuiKey_R)) reset = true;
                
           delay = delay > 0 ? delay : 1;
-          do_not_update_system_info = loop % delay;// ? true : false;
-          if (!do_not_update_system_info)
+          jump = loop % delay;
+          if (!jump)
           {
                uloop++;
-               //Proc->connect();
-               Proc->get_sysinfo("totalmem", "freemem", "uptime", "procs");
-               Proc->get_statvfs("totalspace", "freespace");
-               Proc->processor("cpunumber");
-               Proc->connect("cpufreq", "/proc/cpuinfo", "cpu MHz");
-               Proc->connect("procstat", "/proc/stat");
-               Proc->connect("procloadavg", "/proc/loadavg");
-               //unsigned int cpufreq0 = Proc->get_cpufreq_stats(1);
+               //System->connect();
+               System->get_sysinfo("totalmem", "freemem", "uptime", "procs");
+               System->get_statvfs("totalspace", "freespace");
+               System->processor("cpunumber");
+               System->connect("cpufreq", "/proc/cpuinfo", "cpu MHz");
+               System->connect("procstat", "/proc/stat");
+               System->connect("procloadavg", "/proc/loadavg");
+               //unsigned int cpufreq0 = System->node_cpufreq_stats(1);
                //glfw_error_callback(cpufreq0, "\n");
 
                if (uloop < BUFFER_SIZE) status = "load";
@@ -106,21 +106,21 @@ int main(int, char**)
 
                buftime = float(BUFFER_SIZE) / upfreq;
                               
-               proci = Proc->get("procloadavg")->valeur[3];
+               proci = System->back("procloadavg", 3);
                procimax = proci > procimax ? proci : procimax;
 
-               K3B->fill("cpunumber", Proc->get("cpunumber")->valeur.back());
-               K3B->fill("cpufreq", Proc->get("cpufreq")->valeur.back());
-               K3B->fill("freespace", 100 * Proc->get("freespace")->valeur.back() / Proc->get("totalspace")->valeur.back());
-               K3B->fill("freemem", 100 * Proc->get("freemem")->valeur.back() / Proc->get("totalmem")->valeur.back());
-               K3B->fill("uptime", Proc->get("uptime")->valeur.back());
-               K3B->fill("procs", Proc->get("procs")->valeur.back());
-               K3B->fill("upfreq", upfreq);
-               K3B->fill("appfreq", appfreq);
-               K3B->fill("loadavg0", Proc->get("procloadavg")->valeur[0]);
-               K3B->fill("loadavg1", Proc->get("procloadavg")->valeur[1]);
-               K3B->fill("loadavg2", Proc->get("procloadavg")->valeur[2]);
-               K3B->fill("loadavg3", Proc->get("procloadavg")->valeur[3]);
+               Buffer->fill("cpunumber", System->back("cpunumber"));
+               Buffer->fill("cpufreq", System->back("cpufreq"));
+               Buffer->fill("freespace", 100 * System->back("freespace") / System->back("totalspace"));
+               Buffer->fill("freemem", 100 * System->back("freemem") / System->back("totalmem"));
+               Buffer->fill("uptime", System->back("uptime"));
+               Buffer->fill("procs", System->back("procs"));
+               Buffer->fill("upfreq", upfreq);
+               Buffer->fill("appfreq", appfreq);
+               Buffer->fill("loadavg0", System->back("procloadavg", 0));
+               Buffer->fill("loadavg1", System->back("procloadavg", 1));
+               Buffer->fill("loadavg2", System->back("procloadavg", 2));
+               Buffer->fill("loadavg3", System->back("procloadavg", 3));
           }
 
           const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -150,27 +150,27 @@ int main(int, char**)
           static bool history = false; 
           if (histogramode)
           {
-               draw(K3B, "procs",     "total processes",   "",    histogram);
-               draw(K3B, "loadavg3",  "running processes", "",    histogram);
-               draw(K3B, "cpunumber", "current processor", "",    histogram);
-               draw(K3B, "cpufreq",   "cpu frequence",     "MHz", history);
-               draw(K3B, "appfreq",   "imgui frequence",   "Hz",  history);
-               draw(K3B, "upfreq",    "app frequence",     "Hz",  history);
-               draw(K3B, "uptime",    "uptime",            "ssb", histogram);
-               draw(K3B, "freemem",   "free memory",       "%",   history);
-               draw(K3B, "freespace", "free storage",      "%",   histogram);
+               draw(Buffer, "procs",     "total processes",   "",    histogram);
+               draw(Buffer, "loadavg3",  "running processes", "",    histogram);
+               draw(Buffer, "cpunumber", "current processor", "",    histogram);
+               draw(Buffer, "cpufreq",   "cpu frequence",     "MHz", history);
+               draw(Buffer, "appfreq",   "imgui frequence",   "Hz",  history);
+               draw(Buffer, "upfreq",    "app frequence",     "Hz",  history);
+               draw(Buffer, "uptime",    "uptime",            "ssb", histogram);
+               draw(Buffer, "freemem",   "free memory",       "%",   history);
+               draw(Buffer, "freespace", "free storage",      "%",   histogram);
           }
           else
           {
-               draw(K3B, "procs",     "total processes",   "",    history);
-               draw(K3B, "loadavg3",  "running processes", "",    history);
-               draw(K3B, "cpunumber", "current processor", "",    history);
-               draw(K3B, "cpufreq",   "cpu frequence",     "MHz", histogram);
-               draw(K3B, "appfreq",   "imgui frequence",   "Hz",  histogram);
-               draw(K3B, "upfreq",    "app frequence",     "Hz",  histogram);
-               draw(K3B, "uptime",    "uptime",            "ssb", history);
-               draw(K3B, "freemem",   "free memory",       "%",   histogram);
-               draw(K3B, "freespace", "free storage",      "%",   history);
+               draw(Buffer, "procs",     "total processes",   "",    history);
+               draw(Buffer, "loadavg3",  "running processes", "",    history);
+               draw(Buffer, "cpunumber", "current processor", "",    history);
+               draw(Buffer, "cpufreq",   "cpu frequence",     "MHz", histogram);
+               draw(Buffer, "appfreq",   "imgui frequence",   "Hz",  histogram);
+               draw(Buffer, "upfreq",    "app frequence",     "Hz",  histogram);
+               draw(Buffer, "uptime",    "uptime",            "ssb", history);
+               draw(Buffer, "freemem",   "free memory",       "%",   histogram);
+               draw(Buffer, "freespace", "free storage",      "%",   history);
           }
 
 
@@ -180,8 +180,8 @@ int main(int, char**)
           if (showin.status(WIN_DEBUG) && ImGui::Begin("debug", showin.is(WIN_DEBUG), controlWindowFlags))
           {
                ImGui::SeparatorText("debug");
-               ImGui::Text("loadavg: %s", Proc->get("procloadavg")->text);
-               ImGui::Text("stat: %s", Proc->get("procstat")->text);
+               ImGui::Text("loadavg: %s", System->node("procloadavg")->text);
+               ImGui::Text("stat: %s", System->node("procstat")->text);
                ImGui::End();
           }
 
@@ -210,7 +210,7 @@ int main(int, char**)
           {
                ImGui::Text("%s", sinfo_version);
                ImGui::SeparatorText("code");
-               ImGui::Text("%s", Proc->author());
+               ImGui::Text("%s", System->author());
                ImGui::SeparatorText("powered by");
                ImGui::Text("ImGui, GLFW, OpenGL, X11");
                ImGui::Separator();
@@ -238,12 +238,12 @@ int main(int, char**)
           }
           else if (dump)
           {
-               K3B->dump();
+               Buffer->dump();
                dump = false;
           }
           else if (reset)
           {
-               K3B->reset();
+               Buffer->reset();
                uloop = 0;
                delay = 1;
                showin.hide();
@@ -255,8 +255,8 @@ int main(int, char**)
 
      // Cleanup
 
-     delete Proc;
-     delete K3B;
+     delete System;
+     delete Buffer;
 
      ImGui_ImplOpenGL2_Shutdown(); // @suppress("Invalid arguments")
      ImGui_ImplGlfw_Shutdown(); // @suppress("Invalid arguments")
@@ -282,14 +282,14 @@ static void draw(K3Buffer* objbuf, const char* name,
                  const char* title, const char* siunit,
                  bool mode)
 {
-     if (mode) plotHistogram(objbuf, name, title, siunit);
-     else plotHistory(objbuf, name, title, siunit);    
+     if (mode) spacePlot(objbuf, name, title, siunit);
+     else timePlot(objbuf, name, title, siunit);    
 
 }
 
 
 
-static void plotHistogram(K3Buffer* objbuf, const char* name,
+static void spacePlot(K3Buffer* objbuf, const char* name,
                    const char* title = "", const char* siunit = "")
 {
      std::vector<float> hist(HISTOGRAM_SIZE, 0);
@@ -301,10 +301,10 @@ static void plotHistogram(K3Buffer* objbuf, const char* name,
      ImGui::PlotHistogram("", hist.data(), HISTOGRAM_SIZE, 0, overlay, hmin, hmax, plain());
 }
 
-static void plotHistory(K3Buffer* objbuf, const char* name,
+static void timePlot(K3Buffer* objbuf, const char* name,
                  const char* title = "", const char* siunit = "")
 {
-     ensamble* ens = objbuf->fisher(name);
+     Feature* ens = objbuf->node(name);
      std::vector<float>* fector = ens->buffer;
      float min = objbuf->min(fector);
      float max = objbuf->max(fector);

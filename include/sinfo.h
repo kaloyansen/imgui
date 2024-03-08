@@ -4,7 +4,7 @@
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl2.h"
 #include "K3Buffer.h"
-#include "K3Proc.h"
+#include "K3System.h"
 #include "K3Key.h"
 #ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
@@ -25,8 +25,8 @@
 
 static void glfw_error_callback(int, const char*);
 static ImVec2 plain(void);
-static void draw(K3Buffer*, const char*, const char*, const char*, bool);
-static void plotHistogram(K3Buffer*, const char*, const char*, const char*);
-static void plotHistory(K3Buffer*, const char*, const char*, const char*);
+static void draw(K3Buffer*, const char*, const char*, const char*, bool); /*!< two visual representations are currently implemented; in time and in space (histogram) */
+static void spacePlot(K3Buffer*, const char*, const char*, const char*); /*!< a feature visualisation in space (histogram)*/
+static void timePlot(K3Buffer*, const char*, const char*, const char*); /*!< a feature visualisation in time */
 
 #endif

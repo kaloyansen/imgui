@@ -21,7 +21,7 @@ IMGUI_DIR = ..
 SRC_DIR = $(IMGUI_DIR)/src
 INC_DIR = $(IMGUI_DIR)/include
 
-SOURCES = $(EXE).cpp $(SRC_DIR)/K3Buffer.cpp $(SRC_DIR)/K3Proc.cpp $(SRC_DIR)/K3Key.cpp
+SOURCES = $(EXE).cpp $(SRC_DIR)/K3Buffer.cpp $(SRC_DIR)/K3System.cpp $(SRC_DIR)/K3Key.cpp
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl2.cpp
 OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))

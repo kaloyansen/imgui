@@ -1,50 +1,50 @@
 #ifndef K3BUFFER_H
 #define K3BUFFER_H
+#define CODE_BY "Kaloyan Krastev"
 #include <stdio.h>
 #include <vector>
-#include <map>
-#include <cstdarg>
 #include <cmath>
 #include <algorithm>
 
-struct ensamble
+/*! a linked list of data containers corresponding considered operating system features */
+struct Feature
 {
-     std::vector<float>* buffer; /*!< data */
-     float mini; /*!< absolute minimum */
-     float maxi; /*!< absolute maximum */
+     const char* name; /*!< the feature label */
+     std::vector<float>* buffer; /*!< feature values */
+     float mini; /*!< the feature absolute minimum */
+     float maxi; /*!< the feature absolute maximum */
+     struct Feature* next; /*!< a reference to the next feature */
 };
 
 /*! this is a class to control data buffers */
 class K3Buffer
 {
 private:
-     int buffer_size; /*!< buffer size limit */
-     std::map<const char*, ensamble*> fish;
+     struct Feature* head; /*!< a reference to the first data container */
+     int buffer_size; /*!< the data buffer size limit */
 
+     std::vector<float>* get(const char*); /*!< a buffer getter */
      void info(float, const char*); /*!< command-line output */
-     void appends(const char*); /*!< create a new buffer */
-     void reset(std::vector<float>*); /*!< reset a buffer */
-     void dump(std::vector<float>*);
-     void setminmax(ensamble*, float); /*!< an absolute setter */
-     void statistique(std::vector<float>, int, float, float,
-                      float*, float*); /*!< calculate histogram mean and sigma */
+     struct Feature* emerge(const char*); /*!< feature generation */
+     void reset(std::vector<float>*); /*!< data initialisation */
+     void dump(std::vector<float>*); /*!< dump buffer data to stdout */
+     void setminmax(struct Feature*, float); /*!< set absolute values */
+     void statistique(std::vector<float>, int, float, float, float*, float*); /*!< calculate histogram mean and sigma */
 
 public:
-     K3Buffer(int);
-     ~K3Buffer();
+     ~K3Buffer(); /*!< a public destructor */
+     K3Buffer(int size) : head(nullptr), buffer_size(size) {} /*!< a public constructor */
 
-     ensamble* fisher(const char*); /*!< ensamble getter */
-     std::vector<float>* get(const char*); /*!< buffer getter */
+     struct Feature* node(const char*); /*!< a feature getter */
+     const char* overtext(const char*, float, float, float, const char*, float, float); /*!< formatted text overlay */
+
      float min(std::vector<float>*);  /*!< calculate buffer minimum */
      float max(std::vector<float>*);  /*!< calculate buffer maximum */
 
      void reset(); /*!< reset all buffers */
-     void dump();
-     void append(const char*, ...); /*!< deprecated method */
-     void remove(const char*); /*!< deprecated method */
+     void dump(); /*!< dump real-time data to stdout */
      void fill(const char*, float); /*!< update buffer */
-     void build(const char*, std::vector<float>*, float*, float*, float*, float*, float*, float*, float*); /*!< create histogram */
-     const char* overtext(const char*, float, float, float, const char*, float, float); /*!< formatted text overlay */
+     void build(const char*, std::vector<float>*, float*, float*, float*, float*, float*, float*, float*); /*!< create histogram */     
 };
 
 #endif

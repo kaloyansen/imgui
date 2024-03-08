@@ -11,15 +11,13 @@ private:
      void info(float, const char*) const;
 
 public:
-     K3Key(int size) : bector(size, false) { this->bize = size; }
-     bool* is(int);
-     bool status(int) const;
+     K3Key(int size) : bector(size, false) { this->bize = size; } /*!< public constructor */
+     bool* is(int); /*!< get a reference to a key */
+     bool status(int) const; /*!< get the key value */
 
-     void hide(void);
-     void show(int, bool);
-     void flip(int);
-
-     void print(void) const;
+     void hide(void); /*!< desactivate all keys */
+     void show(int, bool); /*!< activate a key */
+     void flip(int); /*!< flip the key */
 };
 
 #endif

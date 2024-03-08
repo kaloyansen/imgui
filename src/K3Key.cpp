@@ -45,9 +45,3 @@ void K3Key::show(int index, bool status)
      this->bector[index] = status;
 }
 
-void K3Key::print(void) const
-{
-     for (int i = 0; i < this->bize; ++i)
-          this->info(i, this->bector[i] ? "true" : "false");
-}
-
