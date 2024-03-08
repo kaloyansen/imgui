@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['build_0',['build',['../classK3Buffer.html#addbf97f7d6dab778f40ec970a78b78ff',1,'K3Buffer']]]
+  ['connect_0',['connect',['../classK3System.html#a2c8987fc30498749094e8a3070ddbcb8',1,'K3System']]]
 ];

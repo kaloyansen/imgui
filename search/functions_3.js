@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['get_0',['get',['../classK3Buffer.html#a79498e012b097b462f52c8b2512bbe83',1,'K3Buffer']]]
+  ['fill_0',['fill',['../classK3Buffer.html#a5197e3ad32e414a8f877822f1bcb5576',1,'K3Buffer']]],
+  ['flip_1',['flip',['../classK3Key.html#a6a04c314d6e3c4d233622de4e5b79bd8',1,'K3Key']]]
 ];

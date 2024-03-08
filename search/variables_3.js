@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['valeur_0',['valeur',['../structFreedom.html#a4c55f508f20e773449339423425cf076',1,'Freedom']]]
+  ['text_0',['text',['../structFreedom.html#afa326ac4d226f97d25d506faaee9dcb6',1,'Freedom']]]
 ];

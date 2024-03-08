@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['ensamble_0',['ensamble',['../structensamble.html',1,'']]]
+  ['feature_0',['Feature',['../structFeature.html',1,'']]],
+  ['freedom_1',['Freedom',['../structFreedom.html',1,'']]]
 ];

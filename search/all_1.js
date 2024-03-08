@@ -1,5 +1,7 @@
 var searchData=
 [
-  ['buffer_0',['buffer',['../structensamble.html#a15d5c5d57e92d4d2abaaa376c6cc8018',1,'ensamble']]],
-  ['build_1',['build',['../classK3Buffer.html#addbf97f7d6dab778f40ec970a78b78ff',1,'K3Buffer']]]
+  ['code_0',['code',['../index.html#autotoc_md3',1,'']]],
+  ['code_20documentation_1',['code documentation',['../index.html#autotoc_md0',1,'']]],
+  ['connect_2',['connect',['../classK3System.html#a2c8987fc30498749094e8a3070ddbcb8',1,'K3System']]],
+  ['contact_3',['contact',['../index.html#autotoc_md4',1,'']]]
 ];

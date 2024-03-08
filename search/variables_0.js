@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['buffer_0',['buffer',['../structensamble.html#a15d5c5d57e92d4d2abaaa376c6cc8018',1,'ensamble']]]
+  ['buffer_0',['buffer',['../structFeature.html#a906991d99131ccb417902c146208c481',1,'Feature']]]
 ];

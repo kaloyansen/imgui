@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['fill_0',['fill',['../classK3Buffer.html#a5197e3ad32e414a8f877822f1bcb5576',1,'K3Buffer']]],
-  ['fisher_1',['fisher',['../classK3Buffer.html#a154bc9e2f18002fce338f87ac795d13d',1,'K3Buffer']]],
-  ['freedom_2',['Freedom',['../structFreedom.html',1,'']]]
+  ['is_0',['is',['../classK3Key.html#ab82c15982ef8c08534717f7e19aaabed',1,'K3Key']]]
 ];
