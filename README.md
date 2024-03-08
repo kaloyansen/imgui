@@ -4,17 +4,17 @@ source
 =====
 https://github.com/kaloyansen/imgui
 
-quick setup
-=====
-git clone git@github.com:/kaloyansen/imgui.git && cd imgui/sinfo && make && ./sinfo
-
 dependencies
 =====
 glfw
 
+install
+=====
+git clone git@github.com:/kaloyansen/imgui.git && cd imgui/sinfo && make && ./sinfo
+
 code
 =====
-All classes written by Kaloyan Krastev
+C++ classes by Kaloyan Krastev
 
 documentation
 =====
