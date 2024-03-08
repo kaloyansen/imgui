@@ -1,21 +1,24 @@
-This is not an ImGui example. It is a compact system performance monitor for unix-like operating systems with a graphical user interface based on Dear ImGui.
+This is a compact graphical system performance monitor for unix-like operating systems based on Dear ImGui.
 
-code documentation
+source
 =====
-kaloyansen.github.io/imgui 
+https://github.com/kaloyansen/imgui
+
+quick setup
+=====
+git clone git@github.com:/kaloyansen/imgui.git && cd imgui/sinfo && make && ./sinfo
 
 dependencies
 =====
 glfw
 
-quick setup
-=====
-
-git clone git@github.com:/kaloyansen/imgui.git && cd imgui/sinfo && make && ./sinfo
-
 code
 =====
-Kaloyan Krastev
+All classes written by Kaloyan Krastev
+
+documentation
+=====
+kaloyansen.github.io/imgui 
 
 contact
 =====

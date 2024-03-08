@@ -35,6 +35,7 @@ struct Feature* K3Buffer::emerge(const char* name)
      else
      {
           this->head = feature;
+          this->info(1, "freedom list created\n");
      }
 
      this->info(1, name);
@@ -45,12 +46,10 @@ struct Feature* K3Buffer::emerge(const char* name)
 struct Feature* K3Buffer::node(const char* name)
 {
      struct Feature* f = this->head;
-     int count = 0;
      while (f != nullptr)
      {
           if (f->name == name) return f;
           f = f->next;
-          count ++;
      }
 
      return this->emerge(name);

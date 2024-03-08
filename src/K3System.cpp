@@ -21,6 +21,7 @@ struct Freedom* K3System::emerge(const char* name)
 {
      struct Freedom* f = this->head;
      struct Freedom* freedom = new Freedom;
+
      freedom->name = name;
      freedom->valeur = new std::vector<float>;
      freedom->next = nullptr;
@@ -33,8 +34,8 @@ struct Freedom* K3System::emerge(const char* name)
      }
      else
      {
-          this->info(1, "object created\n");
           this->head = freedom;
+          this->info(1, "freedom list created\n");
      }
 
      this->size ++;
@@ -58,9 +59,7 @@ struct Freedom* K3System::node(const char* name)
 float K3System::back(const char* name, int n)
 {
      std::vector<float>* fector = this->content(name);
-     float* element = &((*fector)[n]);
-     return *element;
-     //return &((*fector)[n]);
+     return *(&((*fector)[n]));
 }
 
 float K3System::back(const char* name)
