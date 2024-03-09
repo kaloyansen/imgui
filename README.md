@@ -6,7 +6,9 @@ https://github.com/kaloyansen/imgui
 
 dependencies
 ==
-glfw (http://www.glfw.org)
+glfw3 (http://www.glfw.org)
+* shared *libglfw.so* on GNU/Linux or
+* static *libglfw3.a* library on enbedded linux
 
 build and run
 ===
