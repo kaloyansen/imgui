@@ -1,6 +1,6 @@
-## a compact operating system performance monitor with an attractive graphical user interface based on *Dear ImGui* ##
+# a compact operating system performance monitor with an attractive graphical user interface based on *Dear ImGui* #
 
-# currently tested on various *linux*-kernel operating systems including *poky*, *opensuse*, *manjaro* and *centos* #
+## currently tested on various *linux*-kernel operating systems including *poky*, *opensuse*, *manjaro* and *centos* ##
 
 source
 ==
