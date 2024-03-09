@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['and_20run_0',['clone, build and run',['../index.html#autotoc_md2',1,'']]]
+  ['and_20run_0',['build and run',['../index.html#autotoc_md2',1,'']]]
 ];
