@@ -1,4 +1,4 @@
-### a compact operating system performance monitor
+### tested on: *poky*, *opensuse*, *debian*, *manjaro*, *centos*
 
 features
 ==
@@ -6,7 +6,6 @@ features
 * feature visualisation as a function of *time*
 * feature visualisation as a function of *space* (histogram)
 * customisable experience with graphics powered by *Dear ImGui*
-* tested on: *poky*, *opensuse*, *manjaro*, *centos*
 
 source
 ==
