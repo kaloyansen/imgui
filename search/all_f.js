@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['valeur_0',['valeur',['../structFreedom.html#a850013ef1b0a20fe00a2394542a24eec',1,'Freedom']]]
+  ['tested_20on_3a_20em_20poky_20em_20em_20opensuse_20em_20em_20debian_20em_20em_20manjaro_20em_20em_20centos_20em_0',['tested on: &lt;em&gt;poky&lt;/em&gt;, &lt;em&gt;opensuse&lt;/em&gt;, &lt;em&gt;debian&lt;/em&gt;, &lt;em&gt;manjaro&lt;/em&gt;, &lt;em&gt;centos&lt;/em&gt;',['../index.html',1,'']]],
+  ['text_1',['text',['../structFreedom.html#a07a12b948a9b565921133b4970decf98',1,'Freedom']]]
 ];

@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['reset_0',['reset',['../classK3Buffer.html#a4a9f6b18be7ced332286997e8cb931d6',1,'K3Buffer']]],
-  ['run_1',['build and run',['../index.html#autotoc_md4',1,'']]]
+  ['poky_20em_20em_20opensuse_20em_20em_20debian_20em_20em_20manjaro_20em_20em_20centos_20em_0',['tested on: &lt;em&gt;poky&lt;/em&gt;, &lt;em&gt;opensuse&lt;/em&gt;, &lt;em&gt;debian&lt;/em&gt;, &lt;em&gt;manjaro&lt;/em&gt;, &lt;em&gt;centos&lt;/em&gt;',['../index.html',1,'']]]
 ];
