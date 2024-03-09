@@ -1,7 +1,7 @@
 This is a compact graphical system performance monitor for unix-like operating systems based on Dear ImGui.
 
 source
-=
+==
 https://github.com/kaloyansen/imgui
 
 dependencies
