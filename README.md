@@ -1,3 +1,5 @@
+===================================
+
 ###* user friendly attractive interface
 ###* feature visualisation as a function of *time*
 ###* feature visualisation as a function of *space* (histogram)
