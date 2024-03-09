@@ -1,11 +1,12 @@
 ### tested on: *poky*, *opensuse*, *debian* and *manjaro*
 
-features
+about
 ==
-* user friendly attractive interface
+* real-time visualisation of dynamic operating system features
 * feature visualisation as a function of *time*
 * feature visualisation as a function of *space* (histogram)
-* customisable experience with graphics powered by *Dear ImGui*
+* user friendly attractive interface
+* excellent user experience with graphics powered by *Dear ImGui*
 
 source
 ==
