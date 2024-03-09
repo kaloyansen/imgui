@@ -1,4 +1,4 @@
-### tested on: *poky*, *opensuse*, *debian*, *manjaro*, *centos*
+### tested on: *poky*, *opensuse*, *debian* and *manjaro*
 
 features
 ==
