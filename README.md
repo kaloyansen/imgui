@@ -6,15 +6,19 @@ https://github.com/kaloyansen/imgui
 
 dependencies
 ==
-glfw
+glfw (http://www.glfw.org)
 
 install
 ===
-git clone git@github.com:/kaloyansen/imgui.git && cd imgui/sinfo && make && ./sinfo
+git clone git@github.com:/kaloyansen/imgui.git && cd imgui/sinfo && make
+
+run
+===
+./sinfo&
 
 code
 ====
-C++ classes by Kaloyan Krastev
+Omar Cornut (https://github.com/ocornut/imgui) and sinfo C++ classes by Kaloyan Krastev
 
 documentation
 ===
