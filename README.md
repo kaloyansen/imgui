@@ -1,9 +1,11 @@
+
+summary
 ===================================
 
-###* user friendly attractive interface
+### user friendly attractive interface
 ###* feature visualisation as a function of *time*
 ###* feature visualisation as a function of *space* (histogram)
-###* customisable experience with graphics powered by *Dear ImGui*
+### customisable experience with graphics powered by *Dear ImGui*
 ###* tested on: *poky*, *opensuse*, *manjaro*, *centos*
 
 
