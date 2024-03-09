@@ -8,16 +8,15 @@ dependencies
 ==
 glfw (http://www.glfw.org)
 
-clone, build and run
+build and run
 ===
 * git clone git@github.com:/kaloyansen/imgui.git
-* cd imgui/sinfo && make
-* ./sinfo&
+* cd imgui/sinfo && make && ./sinfo&
 
 code
 ====
-* **Omar Cornut** - **Dear ImGui** - https://github.com/ocornut/imgui
-* **Kaloyan Krastev** - **sinfo** *C++* classes in **imgui/src** and **imgui/include**
+* *Omar Cornut* - **Dear ImGui** - https://github.com/ocornut/imgui
+* *Kaloyan Krastev* - **sinfo** *C++* classes in **imgui/src** and **imgui/include**
 
 documentation
 ===
