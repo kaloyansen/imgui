@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['compact_20operating_20system_20performance_20monitor_0',['# a compact operating system performance monitor',['../index.html',1,'']]]
+  ['friendly_20attractive_20interface_0',['* user friendly attractive interface',['../index.html',1,'']]]
 ];

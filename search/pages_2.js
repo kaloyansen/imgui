@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['monitor_0',['# a compact operating system performance monitor',['../index.html',1,'']]]
+  ['interface_0',['* user friendly attractive interface',['../index.html',1,'']]]
 ];
