@@ -1,5 +1,4 @@
 var searchData=
 [
-  ['reset_0',['reset',['../classK3Buffer.html#a4a9f6b18be7ced332286997e8cb931d6',1,'K3Buffer']]],
-  ['run_1',['build and run',['../index.html#autotoc_md4',1,'']]]
+  ['valeur_0',['valeur',['../structFreedom.html#a850013ef1b0a20fe00a2394542a24eec',1,'Freedom']]]
 ];
