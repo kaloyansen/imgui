@@ -1,11 +1,10 @@
-## a compact operating system performance monitor ##
-#
-* user friendly attractive interface
-* feature visualisation as a function of *time*
-* feature visualisation as a function of *space* (histograms)
-* customisable experience with a graphical interface powered by *Dear ImGui*
-* tested on various *linux*-kernel operating systems including *poky*, *opensuse*, *manjaro* and *centos*
-#
+## a compact operating system performance monitor
+#* user friendly attractive interface
+##* feature visualisation as a function of *time*
+###* feature visualisation as a function of *space* (histogram)
+####* customisable experience with a graphical interface powered by *Dear ImGui*
+#####* tested on various *linux*-kernel operating systems including *poky*, *opensuse*, *manjaro* and *centos*
+
 
 source
 ==
