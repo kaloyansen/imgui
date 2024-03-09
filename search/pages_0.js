@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['summary_0',['summary',['../index.html',1,'']]]
+  ['sinfo_0',['sinfo',['../index.html',1,'']]]
 ];
