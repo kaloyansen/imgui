@@ -1,4 +1,4 @@
-### tested on: *poky*, *opensuse*, *debian* and *manjaro*
+## tested on *poky*, *opensuse*, *debian* and *manjaro*
 
 about
 ==
