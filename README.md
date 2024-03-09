@@ -16,7 +16,8 @@ clone, build and run
 
 code
 ====
-**Omar Cornut** (https://github.com/ocornut/imgui) and sinfo C++ classes by **Kaloyan Krastev** (imgui/src, imgui/include)
+* **Omar Cornut** - **Dear ImGui** - https://github.com/ocornut/imgui
+* **Kaloyan Krastev** - **sinfo** *C++* classes in **imgui/src** and **imgui/include**
 
 documentation
 ===
