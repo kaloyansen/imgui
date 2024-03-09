@@ -1,9 +1,6 @@
 var searchData=
 [
-  ['manjaro_20em_20and_20em_20centos_20em_0',['* tested on various &lt;em&gt;linux&lt;/em&gt;-kernel operating systems including &lt;em&gt;poky&lt;/em&gt;, &lt;em&gt;opensuse&lt;/em&gt;, &lt;em&gt;manjaro&lt;/em&gt; and &lt;em&gt;centos&lt;/em&gt;',['../index.html#autotoc_md5',1,'']]],
-  ['max_1',['max',['../classK3Buffer.html#a8356c38c1289487cdbd8d71225282acc',1,'K3Buffer']]],
-  ['maxi_2',['maxi',['../structFeature.html#a8354bc20bf82e1d0fb160f9bdf625402',1,'Feature']]],
-  ['min_3',['min',['../classK3Buffer.html#a1c32ca2c597655a3ae4ab65c98a201ea',1,'K3Buffer']]],
-  ['mini_4',['mini',['../structFeature.html#ab438180d76e384d7e7020c01de0f0264',1,'Feature']]],
-  ['monitor_5',['a compact operating system performance monitor',['../index.html',1,'']]]
+  ['name_0',['name',['../structFeature.html#aee30718acd4936f8ef77a03cbf3f7845',1,'Feature::name'],['../structFreedom.html#a20e979695d27d22fdceaa9a98a976ff1',1,'Freedom::name']]],
+  ['next_1',['next',['../structFeature.html#a29c11582238e4414bc68c2cf09e9ac66',1,'Feature::next'],['../structFreedom.html#ab03a7b46b9455bc79f14ed39a5ebc84d',1,'Freedom::next']]],
+  ['node_2',['node',['../classK3Buffer.html#ad37431e81729addcecf923e5168ca69f',1,'K3Buffer::node()'],['../classK3System.html#af3223f8a02076c331d8c173f0a0cd472',1,'K3System::node()']]]
 ];

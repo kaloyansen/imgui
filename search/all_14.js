@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['with_20a_20graphical_20interface_20powered_20by_20em_20dear_20imgui_20em_0',['* customisable experience with a graphical interface powered by &lt;em&gt;Dear ImGui&lt;/em&gt;',['../index.html#autotoc_md4',1,'']]]
+  ['_7ek3buffer_0',['~K3Buffer',['../classK3Buffer.html#ad18fb2c62f2ca0d32e0e9adde1ec3f9f',1,'K3Buffer']]],
+  ['_7ek3system_1',['~K3System',['../classK3System.html#ad7b331d77709a1889780817dfddd80ee',1,'K3System']]]
 ];
