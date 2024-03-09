@@ -1,4 +1,6 @@
-Let me introduce **sinfo** - a compact operating system performance monitor with an attractive graphical user interface based on *Dear ImGui*. Currently **sinfo** has been tested on various *linux*-kernel operating systems including *poky*, *opensuse*, *manjaro* and *centos*.
+# A compact operating system performance monitor with an attractive graphical user interface based on *Dear ImGui*.
+
+## Currently tested on various *linux*-kernel operating systems including *poky*, *opensuse*, *manjaro* and *centos*.
 
 source
 ==
