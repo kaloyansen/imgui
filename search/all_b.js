@@ -1,5 +1,9 @@
 var searchData=
 [
-  ['reset_0',['reset',['../classK3Buffer.html#a4a9f6b18be7ced332286997e8cb931d6',1,'K3Buffer']]],
-  ['run_1',['build and run',['../index.html#autotoc_md2',1,'']]]
+  ['manjaro_20em_20and_20em_20centos_20em_0',['Currently tested on various &lt;em&gt;linux&lt;/em&gt;-kernel operating systems including &lt;em&gt;poky&lt;/em&gt;, &lt;em&gt;opensuse&lt;/em&gt;, &lt;em&gt;manjaro&lt;/em&gt; and &lt;em&gt;centos&lt;/em&gt;.',['../index.html#autotoc_md1',1,'']]],
+  ['max_1',['max',['../classK3Buffer.html#a8356c38c1289487cdbd8d71225282acc',1,'K3Buffer']]],
+  ['maxi_2',['maxi',['../structFeature.html#a8354bc20bf82e1d0fb160f9bdf625402',1,'Feature']]],
+  ['min_3',['min',['../classK3Buffer.html#a1c32ca2c597655a3ae4ab65c98a201ea',1,'K3Buffer']]],
+  ['mini_4',['mini',['../structFeature.html#ab438180d76e384d7e7020c01de0f0264',1,'Feature']]],
+  ['monitor_20with_20an_20attractive_20graphical_20user_20interface_20based_20on_20em_20dear_20imgui_20em_5',['A compact operating system performance monitor with an attractive graphical user interface based on &lt;em&gt;Dear ImGui&lt;/em&gt;.',['../index.html',1,'']]]
 ];
