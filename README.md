@@ -18,7 +18,7 @@ glfw3 (http://www.glfw.org)
 * shared *libglfw.so* on GNU/Linux or
 * static *libglfw3.a* library for enbedded devices
 
-build and run
+build
 ===
 * git clone git@github.com:/kaloyansen/imgui.git
 * cd imgui/sinfo && make && ./sinfo&
@@ -37,3 +37,4 @@ contact
 **kaloyansen** at **gmail** dot **com**
 
 
+Last updated: [TIMESTAMP]
