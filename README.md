@@ -1,4 +1,4 @@
-This is a compact graphical system performance monitor for unix-like operating systems based on Dear ImGui.
+Let me introduce **sinfo** - a compact operating system performance monitor with an attractive graphical user interface based on *Dear ImGui*. Currently **sinfo** has been tested on various *linux*-kernel operating systems including *poky*, *opensuse*, *manjaro* and *centos*.
 
 source
 ==
@@ -8,7 +8,7 @@ dependencies
 ==
 glfw3 (http://www.glfw.org)
 * shared *libglfw.so* on GNU/Linux or
-* static *libglfw3.a* library on enbedded linux
+* static *libglfw3.a* library for enbedded devices
 
 build and run
 ===
