@@ -6,47 +6,60 @@
 #include <cmath>
 #include <algorithm>
 
-/*! a linked list of data containers corresponding considered operating system features */
+/**
+ * @breaf a linked list of data containers
+ *
+ * not breaf
+ */
 struct K3List
 {
-     const char* name; /*!< the feature label */
-     std::vector<float>* buffer; /*!< feature values */
-     float mini; /*!< the feature absolute minimum */
-     float maxi; /*!< the feature absolute maximum */
-     struct K3List* next; /*!< a reference to the next feature */
+     const char* name; /*!< container label */
+     std::vector<float>* buffer; /*!< container data */
+     float mini; /*!< data absolute minimum */
+     float maxi; /*!< data absolute maximum */
+     struct K3List* next; /*!< a reference to the next container */
 };
 
-/*! this is a class to control data buffers */
+/**
+ * @brief this is a class to control data buffers
+ *
+ * not breaf   
+ */
 class K3Buffer
 {
 private:
      struct K3List* head; /*!< a reference to the first data container */
-     int buffer_size; /*!< the data buffer size limit */
+     int buffer_size; /*!< the buffer size limit */
 
      std::vector<float>* get(const char*); /*!< a buffer getter */
      void info(float, const char*); /*!< command-line output */
-     struct K3List* emerge(const char*); /*!< feature generation */
-     void reset(std::vector<float>*); /*!< data initialisation */
-     void dump(std::vector<float>*); /*!< dump buffer data to stdout */
+     struct K3List* emerge(const char*); /*!< init container */
+     void reset(std::vector<float>*); /*!< reset data */
+     void dump(std::vector<float>*); /*!< dump data to stdout */
      void setminmax(struct K3List*, float); /*!< set absolute values */
      void statistique(std::vector<float>, int, float, float, float*, float*); /*!< calculate histogram mean and sigma */
 
 public:
      ~K3Buffer(); /*!< a public destructor */
-     K3Buffer(int size) : head(nullptr), buffer_size(size) {} /*!< a public constructor */
+/**
+ * @brief public constructor
+ *
+ * not breaf   
+ */
+     K3Buffer(int size) : head(nullptr), buffer_size(size) {}
 
-     struct K3List* node(const char*); /*!< a feature getter */
+     struct K3List* node(const char*); /*!< a container getter */
      const char* overtext(const char*, float, float, float, const char*, float, float); /*!< formatted text overlay */
 
-     float min(std::vector<float>*);  /*!< calculate buffer minimum */
-     float max(std::vector<float>*);  /*!< calculate buffer maximum */
+     float min(std::vector<float>*);  /*!< calculate data min */
+     float max(std::vector<float>*);  /*!< calculate data max */
 
-     void reset(); /*!< reset all buffers */
+     void reset(); /*!< reset containers */
      void dump(); /*!< dump real-time data to stdout */
-     void fill(const char*, float); /*!< update buffer */
+     void fill(const char*, float); /*!< update data */
      void build(const char*, std::vector<float>*, float*, float*, float*, float*, float*, float*, float*); /*!< create histogram */     
 };
 
-#endif
+#endif // K3BUFFER_H
 
 
