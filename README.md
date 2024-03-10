@@ -7,6 +7,7 @@ about
 * feature visualisation as a function of *space* (histogram)
 * user friendly attractive interface
 * excellent user experience with graphics powered by *Dear ImGui*
+* C++ classes by Kaloyan Krastev in public repository
 
 source
 ==
@@ -36,5 +37,3 @@ contact
 ==
 **kaloyansen** at **gmail** dot **com**
 
-
-Last updated: [TIMESTAMP]
