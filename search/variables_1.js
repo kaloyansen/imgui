@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['maxi_0',['maxi',['../structFeature.html#a8354bc20bf82e1d0fb160f9bdf625402',1,'Feature']]],
-  ['mini_1',['mini',['../structFeature.html#ab438180d76e384d7e7020c01de0f0264',1,'Feature']]]
+  ['maxi_0',['maxi',['../structK3List.html#a81abc204c10f1d0de3a278377b110d92',1,'K3List']]],
+  ['mini_1',['mini',['../structK3List.html#aeba33a4cc2dd2f87c0d5b85e19001f1a',1,'K3List']]]
 ];
