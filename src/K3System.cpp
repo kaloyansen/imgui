@@ -2,7 +2,7 @@
 
 K3System::~K3System()
 {
-     struct Freedom* f = this->head;
+     struct K3Free* f = this->head;
      while (f != nullptr)
      {
           this->info(0, f->name);
@@ -17,10 +17,10 @@ void K3System::info(float value, const char* description = "")
      printf("K3System %f %s", value, description);
 }
 
-struct Freedom* K3System::emerge(const char* name)
+struct K3Free* K3System::emerge(const char* name)
 {
-     struct Freedom* f = this->head;
-     struct Freedom* freedom = new Freedom;
+     struct K3Free* f = this->head;
+     struct K3Free* freedom = new K3Free;
 
      freedom->name = name;
      freedom->valeur = new std::vector<float>;
@@ -44,9 +44,9 @@ struct Freedom* K3System::emerge(const char* name)
      return freedom;
 }
 
-struct Freedom* K3System::node(const char* name)
+struct K3Free* K3System::node(const char* name)
 {
-     struct Freedom* f = this->head;
+     struct K3Free* f = this->head;
      while (f != nullptr)
      {
           if (f->name == name) return f;
@@ -70,7 +70,7 @@ float K3System::back(const char* name)
 
 std::vector<float>* K3System::content(const char* name)
 {
-     struct Freedom* f = this->node(name);
+     struct K3Free* f = this->node(name);
      return f->valeur;
 }
 
@@ -93,7 +93,7 @@ const char* K3System::setext(const char* name, const char* value)
 
 void K3System::char2fector(const char* name)
 {
-     struct Freedom* f = this->node(name);
+     struct K3Free* f = this->node(name);
      //this->reset(f);
      //std::vector<float> fector = f->valeur;
      const char* text = f->text;
@@ -335,11 +335,11 @@ void K3System::get_statvfs(const char* total, const char* free)
 
 void K3System::reset(const char* name)
 {
-     struct Freedom* yeah = this->node(name);
+     struct K3Free* yeah = this->node(name);
      this->reset(yeah);
 }
 
-void K3System::reset(struct Freedom* yeah)
+void K3System::reset(struct K3Free* yeah)
 {
      if (yeah == nullptr) return;
      yeah->valeur->clear();
@@ -348,7 +348,7 @@ void K3System::reset(struct Freedom* yeah)
 
 void K3System::reset()
 {
-     struct Freedom* node = this->head;
+     struct K3Free* node = this->head;
      while (node != nullptr)
      {
           this->reset(node);
