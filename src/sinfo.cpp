@@ -304,7 +304,7 @@ static void spacePlot(K3Buffer* objbuf, const char* name,
 static void timePlot(K3Buffer* objbuf, const char* name,
                  const char* title = "", const char* siunit = "")
 {
-     Feature* ens = objbuf->node(name);
+     K3List* ens = objbuf->node(name);
      std::vector<float>* fector = ens->buffer;
      float min = objbuf->min(fector);
      float max = objbuf->max(fector);

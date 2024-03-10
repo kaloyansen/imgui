@@ -2,7 +2,7 @@
 
 K3Buffer::~K3Buffer()
 {
-     struct Feature* f = this->head;
+     struct K3List* f = this->head;
      while (f != nullptr)
      {
           this->info(0, f->name);
@@ -17,16 +17,16 @@ void K3Buffer::info(float value, const char* description = "")
      printf("K3Buffer %f %s", value, description);
 }
 
-struct Feature* K3Buffer::emerge(const char* name)
+struct K3List* K3Buffer::emerge(const char* name)
 {
-     struct Feature* feature = new Feature;
+     struct K3List* feature = new K3List;
      feature->name = name;
      feature->mini = +1e10;
      feature->maxi = -1e10;
      feature->buffer = new std::vector<float>;
      feature->next = nullptr;
 
-     struct Feature* f = this->head;
+     struct K3List* f = this->head;
      if (f != nullptr)
      {
           while (f->next != NULL) f = f->next;
@@ -43,9 +43,9 @@ struct Feature* K3Buffer::emerge(const char* name)
      return feature;
 }
 
-struct Feature* K3Buffer::node(const char* name)
+struct K3List* K3Buffer::node(const char* name)
 {
-     struct Feature* f = this->head;
+     struct K3List* f = this->head;
      while (f != nullptr)
      {
           if (f->name == name) return f;
@@ -55,7 +55,7 @@ struct Feature* K3Buffer::node(const char* name)
      return this->emerge(name);
 }
 
-void K3Buffer::setminmax(struct Feature* ens, float cur)
+void K3Buffer::setminmax(struct K3List* ens, float cur)
 {
      float minrec = ens->mini;
      float maxrec = ens->maxi;
@@ -65,13 +65,13 @@ void K3Buffer::setminmax(struct Feature* ens, float cur)
 
 std::vector<float>* K3Buffer::get(const char* name)
 {
-     struct Feature* ens = this->node(name);
+     struct K3List* ens = this->node(name);
      return ens->buffer;
 }
 
 void K3Buffer::fill(const char* name, float value)
 {
-     struct Feature* ens = this->node(name);
+     struct K3List* ens = this->node(name);
      std::vector<float>* fector = ens->buffer;
      fector->push_back(value);
      int fize = fector->size();
@@ -164,7 +164,7 @@ void K3Buffer::dump(std::vector<float>* fector)
 
 void K3Buffer::dump()
 {
-     struct Feature* node = this->head;
+     struct K3List* node = this->head;
      while (node != NULL)
      {
           this->info(3, node->name);
@@ -175,7 +175,7 @@ void K3Buffer::dump()
 
 void K3Buffer::reset()
 {
-     struct Feature* node = this->head;
+     struct K3List* node = this->head;
      while (node != NULL)
      {
           this->reset(node->buffer);
