@@ -35,7 +35,7 @@ struct K3List* K3Buffer::emerge(const char* name)
      else
      {
           this->head = feature;
-          this->info(1, "freedom list created\n");
+          this->info(1, "features list head\n");
      }
 
      this->info(1, name);

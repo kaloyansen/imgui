@@ -35,7 +35,7 @@ struct K3Free* K3System::emerge(const char* name)
      else
      {
           this->head = freedom;
-          this->info(1, "freedom list created\n");
+          this->info(1, "free list head\n");
      }
 
      this->size ++;
