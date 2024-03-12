@@ -15,6 +15,7 @@ https://github.com/kaloyansen/imgui
 
 dependencies
 ==
+pkg-config
 glfw3 (http://www.glfw.org)
 * shared *libglfw.so* on GNU/Linux or
 * static *libglfw3.a* library for enbedded devices

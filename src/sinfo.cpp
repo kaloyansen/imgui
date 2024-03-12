@@ -278,17 +278,6 @@ static ImVec2 plain(void)
      return p;
 }
 
-static void draw(K3Buffer* objbuf, const char* name,
-                 const char* title, const char* siunit,
-                 bool mode)
-{
-     if (mode) spacePlot(objbuf, name, title, siunit);
-     else timePlot(objbuf, name, title, siunit);    
-
-}
-
-
-
 static void spacePlot(K3Buffer* objbuf, const char* name,
                    const char* title = "", const char* siunit = "")
 {
@@ -316,7 +305,16 @@ static void timePlot(K3Buffer* objbuf, const char* name,
      ImGui::PlotLines("", duffer, size, 0, overlay, min, max, plain());
 }
 
-static void glfw_error_callback(int error, const char* description)
+static void draw(K3Buffer* objbuf, const char* name, // @suppress("Unused static function")
+                 const char* title, const char* siunit,
+                 bool mode)
+{
+     if (mode) spacePlot(objbuf, name, title, siunit);
+     else timePlot(objbuf, name, title, siunit);
+
+}
+
+static void glfw_error_callback(int error, const char* description) // @suppress("Unused static function")
 {
      printf("glfw %d %s\n", error, description);
 }
