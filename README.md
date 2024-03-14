@@ -28,4 +28,3 @@ code
 * *Kaloyan Krastev* - **sinfo** *C++* classes in **imgui/src** and **imgui/include**
 
 [contact](mailto:kaloyansen@gmail.com)
-==
