@@ -3,6 +3,11 @@
 #include <stdio.h>
 #include <vector>
 
+/**
+ * @brief a class with methods to control windows
+ *
+ * a reasonable way to hide/show/flip gui windows
+ */
 class K3Key {
 private:
      int bize;
