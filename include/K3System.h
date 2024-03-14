@@ -9,6 +9,11 @@
 #include <sys/sysinfo.h>
 #include <sys/statvfs.h>
 
+/**
+ * @brief a linked list of feature containers
+ *
+ * not breaf
+ */
 struct K3Free
 {
      const char* name; /*!< the feature label */
@@ -17,7 +22,11 @@ struct K3Free
      struct K3Free* next; /*!< a reference to the next element */
 };
 
-/*! the class is a collection of methods including system calls and functions to access hardware performance information with no need to parse files to increase the efficiency and provide better control over the data retrieval process */
+/**
+ * @brief a collection of methods including system calls and functions to access hardware performance information with no need to parse files to increase the efficiency and provide better control over the data retrieval process
+ *
+ * not breaf
+ */
 class K3System
 {
 private:
