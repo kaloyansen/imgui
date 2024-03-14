@@ -7,7 +7,7 @@
 #include <algorithm>
 
 /**
- * @breaf a linked list of data containers
+ * @brief a linked list of data containers
  *
  * not breaf
  */
