@@ -27,4 +27,4 @@ code
 * *Omar Cornut* - **Dear ImGui** - https://github.com/ocornut/imgui
 * *Kaloyan Krastev* - **sinfo** *C++* classes in **imgui/src** and **imgui/include**
 
-[contact](mailto:kaloyansen@gmail.com)
+contact [kaloyansen@gmail.com](mailto:kaloyansen@gmail.com)
