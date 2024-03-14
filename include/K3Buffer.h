@@ -21,7 +21,7 @@ struct K3List
 };
 
 /**
- * @brief this is a class to control data buffers
+ * @brief class to control data containers
  *
  * not breaf   
  */

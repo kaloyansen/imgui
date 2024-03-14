@@ -23,9 +23,9 @@ struct K3Free
 };
 
 /**
- * @brief a collection of methods including system calls and functions to access hardware performance information with no need to parse files to increase the efficiency and provide better control over the data retrieval process
+ * @brief this class is a collection of methods to access hardware performance information
  *
- * not breaf
+ * methods should not parse files to increase the efficiency and provide better control over the data retrieval process
  */
 class K3System
 {
