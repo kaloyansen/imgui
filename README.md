@@ -30,9 +30,5 @@ code
 * *Omar Cornut* - **Dear ImGui** - https://github.com/ocornut/imgui
 * *Kaloyan Krastev* - **sinfo** *C++* classes in **imgui/src** and **imgui/include**
 
-documentation
-===
-https://kaloyansen.github.io/imgui 
-
 [contact](mailto:kaloyansen@gmail.com)
 ===
