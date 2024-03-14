@@ -9,6 +9,8 @@ about
 * excellent user experience with graphics powered by *Dear ImGui*
 * C++ classes by Kaloyan Krastev in a public repository
 
+![sinfo on rpi4](https://github.com/kaloyansen/kaloyansen.github.io/blob/master/img/sinfonrpi.png?raw=true)
+
 source
 ==
 https://github.com/kaloyansen/imgui
