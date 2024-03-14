@@ -34,7 +34,5 @@ documentation
 ===
 https://kaloyansen.github.io/imgui 
 
-contact
-==
-**kaloyansen** at **gmail** dot **com**
-
+[contact](mailto:kaloyansen@gmail.com)
+===
