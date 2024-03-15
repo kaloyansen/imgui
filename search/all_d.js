@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['reset_0',['reset',['../classK3Buffer.html#a4a9f6b18be7ced332286997e8cb931d6',1,'K3Buffer']]]
+  ['text_0',['text',['../structK3Free.html#af91a88d5eb15423617bd5531cf5dfee3',1,'K3Free']]]
 ];
