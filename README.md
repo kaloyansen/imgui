@@ -3,14 +3,12 @@
 about
 ==
 * real-time visualisation of dynamic operating system features
-* feature visualisation as a function of *time*
-* feature visualisation as a function of *space* (histogram)
+* feature *time* visualisation
+* feature *space* visualisation (histogram)
 * user friendly attractive interface
 * excellent user experience with graphics powered by *Dear ImGui*
-* C++ classes by Kaloyan Krastev in a public repository
 * tested on *poky*, *opensuse*, *debian* and *manjaro* linux
-
-
+* C++ classes by Kaloyan Krastev in a public repository
 
 source
 ==
