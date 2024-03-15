@@ -1,7 +1,3 @@
-screenshot
-==
-![sinfo screenshot](https://github.com/kaloyansen/kaloyansen.github.io/blob/master/img/sinfofs.png?raw=true "Title")
-
 about
 ==
 * real-time visualisation of dynamic operating system features
@@ -15,6 +11,10 @@ about
 source
 ==
 https://github.com/kaloyansen/imgui
+
+screenshot
+==
+![sinfo screenshot](https://github.com/kaloyansen/kaloyansen.github.io/blob/master/img/sinfofs.png?raw=true "Title")
 
 dependencies
 ==
