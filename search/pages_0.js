@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['sinfo_0',['sinfo',['../index.html',1,'']]]
+  ['screenshot_0',['screenshot',['../index.html',1,'']]]
 ];
