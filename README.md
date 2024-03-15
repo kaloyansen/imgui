@@ -34,5 +34,5 @@ contact
 ==
 <mailto:kaloyansen@gmail.com>
 
-[kaloyansen public repositories](https://kaloyansen.github.io)
+[kalo public repos](https://kaloyansen.github.io)
 ==
