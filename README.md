@@ -1,3 +1,5 @@
+screenshot
+==
 ![sinfo screenshot](https://github.com/kaloyansen/kaloyansen.github.io/blob/master/img/sinfofs.png?raw=true "Title")
 
 about
