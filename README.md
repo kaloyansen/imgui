@@ -17,7 +17,7 @@ https://github.com/kaloyansen/imgui
 
 dependencies
 ==
-*linux*, *pkg-config*, [glfw](http://www.glfw.org)
+*linux*, *pkg-config*, *mesa*, [glfw](http://www.glfw.org)
 
 build
 ==
