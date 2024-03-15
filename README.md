@@ -1,4 +1,4 @@
-## tested on *poky*, *opensuse*, *debian* and *manjaro*
+![sinfo screenshot](https://github.com/kaloyansen/kaloyansen.github.io/blob/master/img/sinfofs.png?raw=true "Title")
 
 about
 ==
@@ -8,8 +8,9 @@ about
 * user friendly attractive interface
 * excellent user experience with graphics powered by *Dear ImGui*
 * C++ classes by Kaloyan Krastev in a public repository
+* tested on *poky*, *opensuse*, *debian* and *manjaro* linux
 
-![sinfo screenshot](https://github.com/kaloyansen/kaloyansen.github.io/blob/master/img/sinfofs.png?raw=true "Title")
+
 
 source
 ==
