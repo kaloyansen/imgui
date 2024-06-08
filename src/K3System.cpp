@@ -386,13 +386,13 @@ double K3System::getCPUUsage() {
 
      // Calculate total CPU time
      long long totalCPUTime = 0;
-     long long value;
+     long long valeur = 0;
 
      for (size_t i = 1; i < token.size(); ++i)
      {
           try
           {
-               value = std::stoll(token[i]);
+               valeur = std::stoll(token[i]);
           }
           catch (const std::exception& e)
           {
@@ -400,7 +400,7 @@ double K3System::getCPUUsage() {
           }
      }
 
-     totalCPUTime += value;
+     totalCPUTime += valeur;
 
      // Calculate idle CPU time
      long long idleCPUTime = std::stoll(token[4]);

@@ -1,6 +1,7 @@
 #ifndef K3BUFFER_H
 #define K3BUFFER_H
 #define CODE_BY "Kaloyan Krastev"
+
 #include <stdio.h>
 #include <vector>
 #include <cmath>
