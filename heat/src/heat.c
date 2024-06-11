@@ -1,6 +1,7 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl2.h"
+#include "implot.h"
 #include <stdio.h>
 #include <stdarg.h>
 #ifdef __APPLE__
@@ -75,6 +76,7 @@ static void timePlot(const CircularBuffer cb, const char* title = "", const char
 {
      const char * lay = formatString("%6.1f [%6.1f ; %6.1f]", cb.last, cb.min, cb.max);
      const char * overlay = formatString("%s %s %s", title, lay, siunit);
+     
      ImGui::PlotLines("", cb.data, cb.size, 0, overlay, cb.min, cb.max, plain());
      if (overlay != NULL) free((void *)overlay);
      if (lay != NULL) free((void *)lay);
@@ -90,7 +92,7 @@ static void draw(const CircularBuffer objbuf, const char* title, const char* siu
 static void presentation(CircularBuffer cb[], int number_of_threads, bool mode = 0)
 {
      for (int i = 0; i < number_of_threads; i ++) pthread_mutex_lock(&cb[i].mutex);
-     ImGui::Text("%zu %.1fs %.1fs",
+     ImGui::Text("%zu %zus %zus",
                  cb[0].size,
                  cb[0].size * UPDATE_TIME,
                  cb[0].count * UPDATE_TIME
