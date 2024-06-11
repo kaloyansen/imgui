@@ -8,7 +8,7 @@
 #include <pthread.h>
 
 
-#define BUFFER_SIZE 1e3
+#define BUFFER_SIZE 1e2
 #define UPDATE_TIME 1
 #define MAX_LINE_LENGTH 256
 #define TEMP_SRC "sensors"
