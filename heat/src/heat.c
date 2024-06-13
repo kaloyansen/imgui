@@ -47,7 +47,9 @@ static void glfw_error_callback(int error, const char* description)
 
 ImU32 Couleur(const char * colorName)
 {
-     int c = 255;
+     int c = (1 << 8) - 1;//255;
+     int d = (1 << 7) - 1;//127
+     int q = (1 << 6) - 1;//63
      if (strcmp(colorName, "red") == 0) return IM_COL32(c, 0, 0, c);
      else if (strcmp(colorName, "green")   == 0) return IM_COL32(0, c, 0, c);
      else if (strcmp(colorName, "blue")    == 0) return IM_COL32(0, 0, c, c);
@@ -55,9 +57,8 @@ ImU32 Couleur(const char * colorName)
      else if (strcmp(colorName, "cyan")    == 0) return IM_COL32(0, c, c, c);
      else if (strcmp(colorName, "magenta") == 0) return IM_COL32(c, 0, c, c);
      else if (strcmp(colorName, "black")   == 0) return IM_COL32(0, 0, 0, c);
-     else if (strcmp(colorName, "white")   == 0) return IM_COL32(c, c, c, c);
-     else if (strcmp(colorName, "gray")    == 0) return IM_COL32(c / 2, c / 2, c / 2, c);
-     else if (strcmp(colorName, "orange")  == 0) return IM_COL32(c, 165, 0, c);
+     else if (strcmp(colorName, "gray")    == 0) return IM_COL32(d, d, d, c);
+     else if (strcmp(colorName, "orange")  == 0) return IM_COL32(c, d, q, c);
      else return IM_COL32(c, c, c, c);
 }
 
@@ -112,20 +113,20 @@ static void timePlot(CircularBuffer cb[],
 
      if (ymax > HIGH_TEMPERATURE) ImGui::StyleColorsLight();
      if (ymax < LOW_TEMPERATURE) ImGui::StyleColorsDark();
-     
+
      ImPlot::SetNextAxesLimits(-1 * (float)cb[0].size, 0.0f, ymin, ymax, ImGuiCond_Always);
      ImPlot::PushStyleVar(ImPlotStyleVar_LineWeight, 3.0f);
-     ImU32 col[] = {Couleur("magenta"), Couleur("cyan"), Couleur("yellow"), Couleur("red")};
+     ImU32 col[] = {Couleur("magenta"), Couleur("cyan"), Couleur("yellow"), Couleur("orange")};
      ImVec2 full_size = ImGui::GetContentRegionAvail();
-     if (ImPlot::BeginPlot("https://kaloyansen.github.io", ImVec2(-1, full_size.y)))
-          //if (ImPlot::BeginPlot("kaloyansen.github.io"))
+     if (ImPlot::BeginPlot(title, ImVec2(-1, full_size.y)))
      {
-          /* ImPlot::SetupAxis(ImAxis_Y2, "temperature/°C", ImPlotAxisFlags_AuxDefault); */
-          /* ImPlot::SetupAxisLimits(ImAxis_Y2, ymin, ymax); */
-          /* ImPlot::SetAxes(ImAxis_X1, ImAxis_Y2); */
+          ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_NoTickLabels);
+          ImPlot::SetupAxis(ImAxis_Y2, "", ImPlotAxisFlags_AuxDefault);
+          ImPlot::SetupAxisLimits(ImAxis_Y2, ymin, ymax, ImGuiCond_Always);
+          ImPlot::SetAxes(ImAxis_X1, ImAxis_Y1);
           for (int i = 0; i < arrsize; i ++)
           {
-               const char * title = formatString("core %d %.1f", i, cb[i].last);
+               const char * label = formatString("core %d %.1f %.1f %.1f", i, ymin, cb[i].last, ymax);
                const float * data = cb[i].data;
                const size_t size = cb[i].size;
                
@@ -136,9 +137,8 @@ static void timePlot(CircularBuffer cb[],
                     time[j] = -1 * (float)cb[i].size + (float)j;
                }               
 
-               //ImPlot::PlotLine(title, time, data, size);
-               ImPlot::PlotLine(title, time, data, size);
-               if (title) free((void *)title);
+               ImPlot::PlotLine(label, time, data, size);
+               if (label) free((void *)label);
           }
 
           ImPlot::EndPlot();
@@ -164,10 +164,8 @@ static void presentation(CircularBuffer cb[], int number_of_threads, bool mode =
           );
 
      CircularBuffer cbgroup[] = {cb[0], cb[1], cb[2], cb[3]};
-     timePlot(cbgroup, "core 0", "C");
-     /* draw(cb[1], "core 1", "C", mode); */
-     /* draw(cb[2], "core 2", "C", mode); */
-     /* draw(cb[3], "core 3", "C", mode); */
+     if (mode) timePlot(cbgroup, "temperature", "°C");
+     else timePlot(cbgroup, "temperature", "°C");
      for (int i = 0; i < number_of_threads; i ++) pthread_mutex_unlock(&cb[i].mutex);
 }
 
