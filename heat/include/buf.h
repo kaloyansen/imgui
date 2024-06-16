@@ -8,8 +8,8 @@
 #include <pthread.h>
 
 
-#define BUFFER_SIZE 1e2
-#define UPDATE_TIME 1
+#define BUFFER_SIZE 3e2
+#define UPDATE_TIME 1e0
 #define MAX_LINE_LENGTH 256
 #define TEMP_SRC "sensors"
 #define TEMP_TOKEN "Core 0"

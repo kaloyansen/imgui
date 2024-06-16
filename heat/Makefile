@@ -24,7 +24,7 @@ INC_DIR = $(IMGUI_DIR)/$(EXE)/include
 IMGUI_DIR = ..
 IMPLOT_DIR = ../../implot
 
-SOURCES = $(SRC_DIR)/$(EXE).c $(SRC_DIR)/buf.c
+SOURCES = $(SRC_DIR)/$(EXE).c $(SRC_DIR)/buf.c $(SRC_DIR)/k3key.c
 SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
 SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl2.cpp
 SOURCES += ${IMPLOT_DIR}/implot.cpp
@@ -98,6 +98,6 @@ clobber:clean
 	rm -f $(EXE)
 
 clean:
-	rm -f buf.o heat.o
+	rm -f buf.o heat.o k3key.o
 #	rm -f $(OBJS)
 
