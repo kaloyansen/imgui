@@ -16,25 +16,32 @@
 #CXX = g++
 #CXX = clang++
 
-EXE = heat
-
-SRC_DIR = $(IMGUI_DIR)/$(EXE)/src
-INC_DIR = $(IMGUI_DIR)/$(EXE)/include
+BINARY = heat
 
 IMGUI_DIR = ..
 IMPLOT_DIR = ../../implot
+SRC_DIR = $(IMGUI_DIR)/$(BINARY)/src
+INC_DIR = $(IMGUI_DIR)/$(BINARY)/include
 
-SOURCES = $(SRC_DIR)/$(EXE).c $(SRC_DIR)/buf.c $(SRC_DIR)/k3key.c
-SOURCES += $(IMGUI_DIR)/imgui.cpp $(IMGUI_DIR)/imgui_demo.cpp $(IMGUI_DIR)/imgui_draw.cpp $(IMGUI_DIR)/imgui_tables.cpp $(IMGUI_DIR)/imgui_widgets.cpp
-SOURCES += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp $(IMGUI_DIR)/backends/imgui_impl_opengl2.cpp
-SOURCES += ${IMPLOT_DIR}/implot.cpp
-SOURCES += ${IMPLOT_DIR}/implot_items.cpp
+SOURCE = $(IMGUI_DIR)/imgui.cpp
+SOURCE += $(IMGUI_DIR)/imgui_draw.cpp
+SOURCE += $(IMGUI_DIR)/imgui_tables.cpp
+SOURCE += $(IMGUI_DIR)/imgui_widgets.cpp
+SOURCE += $(IMGUI_DIR)/backends/imgui_impl_glfw.cpp
+SOURCE += $(IMGUI_DIR)/backends/imgui_impl_opengl2.cpp
+# SOURCE += $(IMGUI_DIR)/imgui_demo.cpp
+SOURCE += ${IMPLOT_DIR}/implot.cpp
+SOURCE += ${IMPLOT_DIR}/implot_items.cpp
+SOURCE += $(SRC_DIR)/k3buf.c
+SOURCE += $(SRC_DIR)/k3key.c
+SOURCE += $(SRC_DIR)/$(BINARY).c
 
-OBJS = $(addsuffix .o, $(basename $(notdir $(SOURCES))))
+OBJ = $(addsuffix .o, $(basename $(notdir $(SOURCE))))
 UNAME_S := $(shell uname -s)
 
-CXXFLAGS = -std=c++11 -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(INC_DIR) -I$(IMPLOT_DIR)
-CXXFLAGS += -g -Wall -Wformat
+INCFLAG = -I$(IMGUI_DIR) -I$(IMGUI_DIR)/backends -I$(INC_DIR) -I$(IMPLOT_DIR)
+CXXFLAG = $(INCFLAG) -g -Wall -Wformat
+#CXXFLAG += -std=c++11
 LIBS =
 
 ##---------------------------------------------------------------------
@@ -45,8 +52,8 @@ ifeq ($(UNAME_S), Linux) #LINUX
 	ECHO_MESSAGE = "linux"
 	LIBS += -lGL `pkg-config --static --libs glfw3`
 
-	CXXFLAGS += `pkg-config --cflags glfw3`
-	CFLAGS = $(CXXFLAGS)
+	CXXFLAG += `pkg-config --cflags glfw3`
+	CFLAG = $(CXXFLAG)
 endif
 
 ifeq ($(UNAME_S), Darwin) #APPLE
@@ -55,49 +62,48 @@ ifeq ($(UNAME_S), Darwin) #APPLE
 	LIBS += -L/usr/local/lib -L/opt/local/lib -L/opt/homebrew/lib
 	LIBS += -lglfw
 
-	CXXFLAGS += -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include
-	CFLAGS = $(CXXFLAGS)
+	CXXFLAG += -I/usr/local/include -I/opt/local/include -I/opt/homebrew/include
+	CFLAG = $(CXXFLAG)
 endif
 
 ifeq ($(OS), Windows_NT)
 	ECHO_MESSAGE = "MinGW"
 	LIBS += -lglfw3 -lgdi32 -lopengl32 -limm32
 
-	CXXFLAGS += `pkg-config --cflags glfw3`
-	CFLAGS = $(CXXFLAGS)
+	CXXFLAG += `pkg-config --cflags glfw3`
+	CFLAG = $(CXXFLAG)
 endif
 
-MESSAGE = $(EXE) built on $(ECHO_MESSAGE)
+MESSAGE = $(BINARY) built on $(ECHO_MESSAGE)
 
 ##---------------------------------------------------------------------
 ## BUILD RULES
 ##---------------------------------------------------------------------
 
 %.o:	%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAG) -c -o $@ $<
 
 %.o:	$(IMGUI_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAG) -c -o $@ $<
 
 %.o:	$(IMGUI_DIR)/backends/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
-
-%.o:	$(SRC_DIR)/%.c
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAG) -c -o $@ $<
 
 %.o:	$(IMPLOT_DIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAG) -c -o $@ $<
 
-all:	$(EXE)
+%.o:	$(SRC_DIR)/%.c
+	$(CXX) $(CFLAG) -c -o $@ $<
+
+all:	$(BINARY)
 	@echo $(MESSAGE)
 
-$(EXE): $(OBJS)
-	$(CXX) -o $@ $^ $(CXXFLAGS) $(LIBS)
+$(BINARY): $(OBJ)
+	$(CXX) -o $@ $^ $(CXXFLAG) $(LIBS)
 
-clobber:clean
-	rm -f $(EXE)
+clobber:
+	rm -f $(BINARY) $(OBJ)
 
 clean:
-	rm -f buf.o heat.o k3key.o
-#	rm -f $(OBJS)
+	rm -f k3buf.o heat.o k3key.o
 

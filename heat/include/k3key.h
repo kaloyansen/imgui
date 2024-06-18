@@ -10,22 +10,22 @@ typedef struct k3key
      int size;
      bool * val;
 
-     void (* init)(struct k3key *, int);
-     void (* die)(struct k3key *);
-     void (* dump)(struct k3key *);
-     void (* on)(struct k3key *, int);
-     void (* flip)(struct k3key *, int);
-     void (* off)(struct k3key *);
-     bool * (* get)(struct k3key *, int);
+     void (* init)(void *, int);
+     void (* die)(void *);
+     void (* dump)(void *);
+     void (* on)(void *, int);
+     void (* flip)(void *, int);
+     void (* off)(void *);
+     bool * (* get)(void *, int);
 } k3key;
 
-void k3key_init(k3key * self, int isize);
-void k3key_die(k3key * self);
-void k3key_dump(k3key * self);
-void k3key_on(k3key * self, int key);
-void k3key_flip(k3key * self, int key);
-void k3key_off(k3key * self);
-bool * k3key_get(k3key * self, int key);
-k3key create_k3key(int isize);
+k3key k3keyi(int);
+bool * k3key_get(void *, int);
+void k3key_init(void *, int);
+void k3key_on(void *, int);
+void k3key_flip(void *, int);
+void k3key_die(void *);
+void k3key_dump(void *);
+void k3key_off(void *);
 
 #endif
