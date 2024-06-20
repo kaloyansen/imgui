@@ -1,72 +1,74 @@
 #include "k3key.h"
 
-void k3key_init(void * arg, int isize)
+int mail()
 {
-     k3key * self = (k3key *)arg;
-     self->size = isize;
-     self->val = (bool *)calloc(false, isize * sizeof(bool));
-     if (!self->val) fprintf(stderr, "init failed\n");
+     k3key key = k3keyi(5);
+     key.on(&key, 2);
+     key.dump(&key);
+     key.on(&key, 3);
+     key.dump(&key);
+     return 0;
 }
 
-void k3key_die(void * arg)
+void k3key_init(void * arg, size_t isize)
 {
      k3key * self = (k3key *)arg;
-     if (self->val) free((void *)self->val);
-     else fprintf(stderr, "cannot die\n");
+     self->size = isize <= 32 ? isize : 32;
+     self->bit = 0;
 }
 
 void k3key_dump(void * arg)
 {
      k3key * self = (k3key *)arg;
      fprintf(stdout, "k3key_dump\n");
-     for (int i = 0; i < self->size; i ++)
-     {
-          bool * p = self->get(self, i);
-          fprintf(stdout, "%d %s\n", i, *p ? "true" : "false");
-     }
+     for (size_t i = 0; i < self->size; i ++) fprintf(stdout, "%zu %s\n", i, self->get(self, i) ? "true" : "false");
 }
 
-void k3key_off(void * arg)
+bool k3key_get(void * arg, size_t key)
 {
      k3key * self = (k3key *)arg;
-     for (int i = 0; i < self->size; i ++)
-     {
-          bool * p = self->get(self, i);
-          *p = false;
-     }
+     if (key >= self->size) return false; // Out of bounds
+     size_t bit_index = key % 32;
+     return (self->bit >> bit_index) & 1;
 }
 
-bool * k3key_get(void * arg, int key)
+void k3key_expo(void * arg, size_t key, bool valeur)
 {
      k3key * self = (k3key *)arg;
-     return self->val + key;
+     if (key >= self->size) return; // Out of bounds
+     if (valeur) self->bit |= (1 << key);
+     else self->bit &= ~(1 << key);
 }
-
 
 void k3key_on(void * arg, int key)
 {
      k3key * self = (k3key *)arg;
      self->off(self);
-     bool * p = self->get(self, key);
-     *p = true;
+     self->bit |= (1 << key);
+}
+
+void k3key_off(void * arg)
+{
+     k3key * self = (k3key *)arg;
+     for (size_t i = 0; i < self->size; i ++) self->bit &= ~(1 << i);
 }
 
 void k3key_flip(void * arg, int key)
 {
      k3key * self = (k3key *)arg;
-     bool * p = self->get(self, key);
-     bool old = *p;
+
+     bool old = self->get(self, key);
      self->off(self);
-     *p = !old;
+     self->expo(self, key, !old);
 }
 
-k3key k3keyi(int isize)
+k3key k3keyi(size_t isize)
 {
      k3key obj;
      obj.size = isize;
      obj.init = k3key_init;
-     obj.die  = k3key_die;
      obj.get  = k3key_get;
+     obj.expo = k3key_expo;
      obj.on   = k3key_on;
      obj.flip = k3key_flip;
      obj.off  = k3key_off;
@@ -76,18 +78,3 @@ k3key k3keyi(int isize)
      return obj;
 }
 
-
-/*
-  int main()
-{
-     k3key key = create_k3key(5);
-     key.on(&key, 2);
-     key.dump(&key);
-     key.on(&key, 3);
-     key.dump(&key);
-
-     key.die(&key);
-     
-     return 0;
-}
-*/

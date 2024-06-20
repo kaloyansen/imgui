@@ -1,47 +1,7 @@
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl2.h"
-#include "implot.h"
-#include "implot_internal.h"
-
-#ifdef __APPLE__
-#define GL_SILENCE_DEPRECATION
-#endif
-
-#include <GLFW/glfw3.h>
-#include "k3buf.h"
-#include "k3key.h"
-
-#if defined(_MSC_VER) && (_MSC_VER >= 1900) && !defined(IMGUI_DISABLE_WIN32_FUNCTIONS)
-#pragma comment(lib, "legacy_stdio_definitions")
-#endif
-
-#define CODEBY "Kaloyan Krastev"
-#define VERSION "heat v2.3.0"
-#define XVIEW 999
-#define YVIEW 666
-#define DEBUG true
-#define HISTO_SIZE 6
-#define HIGH_TEMPERATURE 77
-#define LOW_TEMPERATURE 66
-#define NUMBER_OF_THREADS 6
-#define SHOW_SIZE 4
-#define SHOW_MAIN 0
-#define SHOW_HELP 1
-#define SHOW_ABOUT 2
-#define SHOW_DEBUG 3
+#include "heat.h"
 
 int screen_width;
 int screen_height;
-
-static void glfw_error_callback(int error, const char* description);
-ImU32 couleur(const char * colorName);
-void setStyle(const char * mystyle);
-int nextStyle();
-const char* formatString(const char *format, ...);
-static void spacePlot(k3buf cb[]);
-static void timePlot(k3buf cb[]);
-static void presentation(k3buf cb[], const bool mode, size_t * size, size_t * count);
 
 ImU32 cool[] = {
      couleur("magenta"),
@@ -52,6 +12,16 @@ ImU32 cool[] = {
      couleur("red"),
      couleur("green")
 };
+
+
+void fontSize(float * scale, bool shift = false)
+{
+     float step = 0.2;
+     float scale_min = 0.5;
+     float scale_max = 5;
+     if (shift && *scale > scale_min) *scale -= step;
+     if (!shift && *scale < scale_max) *scale += step;
+}
 
 
 int main(int, char**)
@@ -78,20 +48,20 @@ int main(int, char**)
      ImGui_ImplOpenGL2_Init();
 
      static float font_scale = 1.5;
-     static bool quit = 0;
+     static bool open = true;
      static bool mode = 0;
      static bool reset = 0;
      static k3key cle = k3keyi(SHOW_SIZE);
-     cle.on(&cle, SHOW_MAIN);
+     //cle.on(&cle, SHOW_MAIN);
      cle.dump(&cle);
-
+          
      k3buf cirbu[NUMBER_OF_THREADS];
      cirbu[0] = k3bufi("Core 0");
      cirbu[1] = k3bufi("Core 1");
      cirbu[2] = k3bufi("Core 2");
      cirbu[3] = k3bufi("Core 3");
-     cirbu[4] = k3bufi("Sensor 1");
-     cirbu[5] = k3bufi("Sensor 2");
+     if (NUMBER_OF_THREADS > 4) cirbu[4] = k3bufi("Sensor 1");
+     if (NUMBER_OF_THREADS > 5) cirbu[5] = k3bufi("Sensor 2");
 
      pthread_t producerThread[NUMBER_OF_THREADS];     
 
@@ -113,14 +83,26 @@ int main(int, char**)
      
      while (!glfwWindowShouldClose(window))
      {
+          bool hold_control = ImGui::IsKeyDown(ImGuiMod_Ctrl);
+          bool hold_shift = ImGui::IsKeyDown(ImGuiMod_Shift);
+          bool hold_ = hold_control || hold_shift;
+
           if (ImGui::IsKeyPressed(ImGuiKey_A)) cle.flip(&cle, SHOW_ABOUT);
           if (ImGui::IsKeyPressed(ImGuiKey_D)) cle.flip(&cle, SHOW_DEBUG);
           if (ImGui::IsKeyPressed(ImGuiKey_H)) cle.flip(&cle, SHOW_HELP);
-          if (ImGui::IsKeyPressed(ImGuiKey_Escape)) cle.flip(&cle, SHOW_HELP);
+          if (ImGui::IsKeyPressed(ImGuiKey_Escape)) cle.off(&cle);
           if (ImGui::IsKeyPressed(ImGuiKey_M)) mode = !mode;
-          if (ImGui::IsKeyPressed(ImGuiKey_Q)) quit = 1;
+          if (ImGui::IsKeyPressed(ImGuiKey_Q))
+          {
+               if (hold_) open = 0;
+               else cle.off(&cle);
+          }
           if (ImGui::IsKeyPressed(ImGuiKey_R)) reset = 1;
           if (ImGui::IsKeyPressed(ImGuiKey_S)) nextStyle();
+          if (ImGui::IsKeyPressed(ImGuiKey_F))
+          {
+               fontSize(&font_scale, hold_);
+          }
 
           glfwPollEvents();
 
@@ -138,24 +120,30 @@ int main(int, char**)
           screen_height = viewport->WorkSize.y;
 
           static size_t buf_size, buf_count;
-          if (ImGui::Begin("heat", cle.get(&cle, SHOW_MAIN), ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize))
+
+          const ImGuiWindowFlags sFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration;
+          const ImGuiWindowFlags mFlags = sFlags | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
+
+          if (ImGui::Begin("heat", &open, mFlags))
           {
-               presentation(cirbu, mode, &buf_size, &buf_count);
+               talk(cirbu, mode, &buf_size, &buf_count);
                ImGui::End();
           }
 
-          static ImGuiWindowFlags sFlags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoDecoration;
 
-          if (*cle.get(&cle, SHOW_DEBUG))
-               if (ImGui::Begin("debug", cle.get(&cle, SHOW_DEBUG), sFlags))
+          if (cle.get(&cle, SHOW_DEBUG))
+          {
+               if (ImGui::Begin("debug", NULL, sFlags))
                {
                     ImGui::SeparatorText("debug");
                     ImGui::Text("%.0f%% %zus", (float)buf_size / BUFFER_SIZE * 100, buf_count * (size_t)UPDATE_TIME);
                     ImGui::End();
-               }
+               } 
+          }
 
-          if (*cle.get(&cle, SHOW_ABOUT))
-               if (ImGui::Begin("about", cle.get(&cle, SHOW_ABOUT), sFlags))
+
+          if (cle.get(&cle, SHOW_ABOUT))
+               if (ImGui::Begin("about", NULL, sFlags))
                {
                     ImGui::SeparatorText("about");
                     ImGui::Text("%s", VERSION);
@@ -166,24 +154,26 @@ int main(int, char**)
                     ImGui::End();
                }
 
-          if (*cle.get(&cle, SHOW_HELP))
-               if (ImGui::Begin("help", cle.get(&cle, SHOW_HELP), sFlags))
+          if (cle.get(&cle, SHOW_HELP))
+               if (ImGui::Begin("help", NULL, sFlags))
                {
                     ImGui::SeparatorText("help");
                     ImGui::Separator();
                     ImGui::Text("keyboard control");
-                    ImGui::Text("[key] action");
-                    ImGui::Text("[a]   toggle about window");
-                    ImGui::Text("[d]   toggle debug window");
-                    ImGui::Text("[h]   toggle this window");
-                    ImGui::Text("[m]   toggle visual mode");
-                    ImGui::Text("[q]   quit %s", VERSION);
-                    ImGui::Text("[r]   reset data");
-                    ImGui::Text("[s]   toggle color style");
+                    ImGui::Text("[key]   action");
+                    ImGui::Text("[h]     toggle this window");
+                    ImGui::Text("[a]     toggle about window");
+                    ImGui::Text("[d]     toggle debug window");
+                    ImGui::Text("[m]     toggle visual mode");
+                    ImGui::Text("[r]     reset data");
+                    ImGui::Text("[s]     adjust style");
+                    ImGui::Text("[f]     increase font");
+                    ImGui::Text("[F]     decrease font");
+                    ImGui::Text("[q]     close window");
+                    ImGui::Text("[Q]     quit %s", VERSION);
                     ImGui::Separator();
                     ImGui::End();
                }
-
 
           // Rendering
           ImGui::Render();
@@ -198,7 +188,7 @@ int main(int, char**)
           glfwMakeContextCurrent(window);
           glfwSwapBuffers(window);
 
-          glfwSetWindowShouldClose(window, quit);
+          glfwSetWindowShouldClose(window, !open);
           if (reset)
           {
                reset = 0;
@@ -207,7 +197,7 @@ int main(int, char**)
           }
      }
 
-     cle.die(&cle);
+     //cle.die(&cle);
      
      for (int i = 0; i < NUMBER_OF_THREADS; i ++)
      {
@@ -229,39 +219,7 @@ int main(int, char**)
      return 0;
 }
 
-/*
-static ImVec2 plain(void)
-{
-     int* vjhbiyg = &screen_width;
-     int* hjjhvgf = &screen_height;
-     ImVec2 p(*vjhbiyg - 16, *hjjhvgf / 6);
-     return p;
-}
-*/
-
-
-/*
-void getLimit(k3buf cb[], float * minp, float * maxp)
-{
-     float minval = 1e8;
-     float maxval = -1e8;
-     for (int i = 0; i < NUMBER_OF_THREADS; i ++)
-     {
-          minval = minval < cb[i].min ? minval : cb[i].min;
-          maxval = maxval > cb[i].max ? maxval : cb[i].max;
-     }
-
-     *minp = minval;
-     *maxp = maxval;
-
-     if (maxval > HIGH_TEMPERATURE) setStyle("light");
-     if (maxval < LOW_TEMPERATURE) setStyle("dark");
-}
-*/
-
-
-
-static void presentation(k3buf cb[], const bool mode, size_t * size, size_t * count)
+static void talk(k3buf cb[], const bool mode, size_t * size, size_t * count)
 {
      for (int i = 0; i < NUMBER_OF_THREADS; i ++) pthread_mutex_lock(&cb[i].mutex);
 
@@ -270,7 +228,7 @@ static void presentation(k3buf cb[], const bool mode, size_t * size, size_t * co
 
      ImVec2 full_size = ImGui::GetContentRegionAvail();
 
-     if (ImPlot::BeginPlot("##fuckyou", ImVec2(-1, full_size.y)))
+     if (ImPlot::BeginPlot("##talk", ImVec2(-1, full_size.y)))
      {
           if (mode) spacePlot(cb);
           else timePlot(cb);
@@ -279,20 +237,21 @@ static void presentation(k3buf cb[], const bool mode, size_t * size, size_t * co
      for (int i = 0; i < NUMBER_OF_THREADS; i ++) pthread_mutex_unlock(&cb[i].mutex);
 }
 
-
+const char * plotLabel(k3buf buf)
+{
+     return formatString("%s %.1f %.1f %.1f", buf.token, buf.min, buf.last, buf.max);
+}
 
 static void timePlot(k3buf cb[])
 {
-     ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AuxDefault | ImPlotAxisFlags_AutoFit);
-     ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_NoTickLabels);
-     ImPlot::SetupAxis(ImAxis_Y2, "", ImPlotAxisFlags_AuxDefault | ImPlotAxisFlags_AutoFit);
-     ImPlot::SetAxes(ImAxis_X1, ImAxis_Y2);
+     ImPlot::SetupAxis(ImAxis_X1, "", ImPlotAxisFlags_AutoFit);
+     ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_Opposite);
      for (int i = 0; i < NUMBER_OF_THREADS; i ++)
      {
-          const char * label = formatString("%s %.1f %.1f %.1f", cb[i].token, cb[i].min, cb[i].last, cb[i].max);
           const float * data = cb[i].data;
           const size_t size = cb[i].size;
-               
+          const char * label = plotLabel(cb[i]);//formatString("%s %.1f %.1f %.1f", cb[i].token, cb[i].min, cb[i].last, cb[i].max);
+
           float time[size];
           for (size_t j = 0; j < size; j ++)
           {
@@ -301,7 +260,6 @@ static void timePlot(k3buf cb[])
 
           ImPlot::PushStyleColor(ImPlotCol_Line, cool[i]);
           ImPlot::PlotLine(label, time, data, size);
-
           if (label) free((void *)label);
      }
 }
@@ -312,12 +270,15 @@ static void spacePlot(k3buf cb[])
      ImPlot::SetupAxis(ImAxis_Y1, "", ImPlotAxisFlags_AutoFit | ImPlotAxisFlags_NoTickLabels);
      for (int i = 0; i < NUMBER_OF_THREADS; i ++)
      {
+          const char * label = plotLabel(cb[i]);//formatString("%s %.1f %.1f %.1f", cb[i].token, cb[i].min, cb[i].last, cb[i].max);
           const float * data = cb[i].data;
           const size_t size = cb[i].size;
                
           ImPlot::PushStyleColor(ImPlotCol_Fill, cool[i]);
+          ImPlot::PushStyleColor(ImPlotCol_Line, cool[i]);
           ImPlot::SetNextFillStyle(IMPLOT_AUTO_COL, 0.5f);
-          ImPlot::PlotHistogram("", data, size, HISTO_SIZE, 1.0, ImPlotRange(), ImPlotHistogramFlags_Density);
+          ImPlot::PlotHistogram(label, data, size, HISTO_SIZE, 1.0, ImPlotRange(), ImPlotHistogramFlags_Density);
+          if (label) free((void *)label);
      }
 }
 
@@ -378,7 +339,7 @@ void setStyle(const char * mystyle)
      style.Marker           = ImPlotMarker_None;
      style.MarkerSize       = 4;
      style.MarkerWeight     = 1;
-     style.FillAlpha        = 0.6f;
+     style.FillAlpha        = 0.7f;
      style.ErrorBarSize     = 5;
      style.ErrorBarWeight   = 1.5f;
      style.DigitalBitHeight = 8;

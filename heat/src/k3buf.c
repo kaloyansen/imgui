@@ -1,6 +1,6 @@
 #include "k3buf.h"
 
-void initBuffer(k3buf * cb)
+static void initBuffer(k3buf * cb)
 {
      cb->data = NULL;
      cb->min = 1000;
@@ -12,7 +12,7 @@ void initBuffer(k3buf * cb)
      printf("%s initialized\n", cb->token);
 }
 
-void expandBuffer(k3buf * cb)
+static void expandBuffer(k3buf * cb)
 {
      cb->size ++;
      float * array = (float *)realloc(cb->data, cb->size * sizeof(float));
@@ -20,7 +20,7 @@ void expandBuffer(k3buf * cb)
      else cb->data = array; 
 }
 
-void minmaxBuffer(k3buf * cb)
+static void minmaxBuffer(k3buf * cb)
 {
      float min = 1e8;
      float max = 0;
@@ -35,7 +35,7 @@ void minmaxBuffer(k3buf * cb)
      cb->max = max;
 }
 
-void addFloatToBuffer(k3buf * cb, float value)
+static void addFloatToBuffer(k3buf * cb, float value)
 {
 
      pthread_mutex_lock(&cb->mutex);
@@ -49,7 +49,7 @@ void addFloatToBuffer(k3buf * cb, float value)
      pthread_mutex_unlock(&cb->mutex);
 }
 
-float getMotherfucker(const char * cmd, const char * token)
+static float getMotherfucker(const char * cmd, const char * token)
 {
      FILE *fp;
      char path[MAX_LINE_LENGTH];
